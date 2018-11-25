@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">GoGo</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <string name="super_long_string">Hey guy, Join my trip at …! We are having such interesting topic out there. Please join in right now\nHey guy, Join my trip at …! We are having such interesting topic out there. Please join in right now\nHey guy, Join my trip at …! We are having such interesting topic out there. Please join in right now\n</string>
+    <string name="you_are_currently_on_a_trip_ncheck_out_the_plan">A trip is waiting you!\nCheck out the plan!</string>
+    <string name="decline">Decline</string>
+    <string name="accept">Accept</string>
+    <string name="currently_there_is_no_trip_n_create_one">Currently, there is no trip.\n  Create one!</string>
+    <string name="title_activity_trips">My trips</string>
+    <string name="tab_text_1">Plan</string>
+    <string name="tab_text_2">Member</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="enter_a_name_here_to_invite_or_remove">Member list</string>
+</resources>

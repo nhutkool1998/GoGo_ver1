@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_marginTop="@dimen/activity_vertical_margin"
+    android:layout_marginBottom="@dimen/activity_horizontal_margin"
+    android:layout_height="match_parent">
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        card_view:cardElevation="2dp"
+        card_view:cardCornerRadius="@dimen/card_radius"
+        card_view:cardBackgroundColor="@color/colorCardActivity"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        >
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:paddingStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:paddingEnd="4dp"
+            android:rowCount="4"
+           >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Place: "
+                android:textSize="20sp"
+                card_view:layout_constraintLeft_toLeftOf="parent"
+                card_view:layout_constraintTop_toTopOf="parent"
+                android:id="@+id/lbPlacetxtPlace"
+                android:labelFor="@id/txtPlace"/>
+            <EditText
+                android:id="@+id/txtPlace"
+                android:textSize="20sp"
+                android:text="Museum"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                card_view:layout_constraintLeft_toRightOf="@id/lbPlacetxtPlace"
+                card_view:layout_constraintRight_toRightOf="parent"
+                android:drawableEnd="@drawable/icon_search"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Time start: "
+                android:textSize="20sp"
+                card_view:layout_constraintLeft_toLeftOf="parent"
+                card_view:layout_constraintTop_toTopOf="parent"
+                android:id="@+id/lbTimeStart"
+                android:labelFor="@id/txtPlace"/>
+            <EditText
+                android:id="@+id/txtTimeStart"
+                android:textSize="20sp"
+                android:text="07:00 AM"
+                android:inputType="datetime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Time end: "
+                android:textSize="20sp"
+                card_view:layout_constraintLeft_toLeftOf="parent"
+                card_view:layout_constraintTop_toTopOf="parent"
+                android:id="@+id/lbTimeEnd"
+                android:labelFor="@id/txtPlace"/>
+            <EditText
+                android:id="@+id/txtTimeEnd"
+                android:textSize="20sp"
+                android:text="10:00 AM"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+               />
+            <android.support.constraint.ConstraintLayout
+                android:layout_columnSpan="2"
+                android:layout_width="match_parent"
+                android:layout_marginBottom="8dp">
+               <ToggleButton
+                   android:layout_width="40dp"
+                   android:layout_height="40dp"
+                   android:background="@drawable/icon_notification_on"
+                   android:layout_marginEnd="16dp"
+                   card_view:layout_constraintRight_toLeftOf="@id/btnDeleteThisActivity"
+                   android:textColor="#FFF"/>
+                <ImageButton
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:id="@+id/btnDeleteThisActivity"
+                    card_view:layout_constraintRight_toRightOf="parent"
+                    android:background="@drawable/icon_delete"
+                    android:src="@drawable/icon_delete"
+                    android:scaleType="fitCenter"
+                    android:layout_marginBottom="8dp"
+                    />
+            </android.support.constraint.ConstraintLayout>
+        </GridLayout>
+
+    </android.support.v7.widget.CardView>
+</LinearLayout>

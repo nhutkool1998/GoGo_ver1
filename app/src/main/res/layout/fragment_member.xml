@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Member">
+
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/Member_mapView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <Spinner
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_margin="16dp"
+        android:background="@color/colorCardActivity"
+        android:padding="4dp"
+        android:drawableEnd="@drawable/icon_search"
+        android:prompt="@string/enter_a_name_here_to_invite_or_remove"/>
+</FrameLayout>
