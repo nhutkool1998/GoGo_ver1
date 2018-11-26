@@ -10,7 +10,7 @@
     <string name="you_are_currently_on_a_trip_ncheck_out_the_plan">A trip is waiting you!\nCheck out the plan!</string>
     <string name="decline">Decline</string>
     <string name="accept">Accept</string>
-    <string name="currently_there_is_no_trip_n_create_one">Currently, there is no trip.\n  Create one!</string>
+    <string name="currently_there_is_no_trip_n_create_one">Currently, there is no trip.\nMake one!</string>
     <string name="title_activity_trips">My trips</string>
     <string name="tab_text_1">Plan</string>
     <string name="tab_text_2">Member</string>

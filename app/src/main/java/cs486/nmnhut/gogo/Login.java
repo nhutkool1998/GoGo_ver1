@@ -17,6 +17,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.UserInfo;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class Login extends AppCompatActivity {
 
@@ -25,6 +28,7 @@ public class Login extends AppCompatActivity {
     EditText txtUsername;
     EditText txtPassword;
     private FirebaseAuth mAuth;
+
 
     final int NetworkPermission = 100;
     final int LocationPermission = 101 ;
@@ -73,6 +77,9 @@ public class Login extends AppCompatActivity {
 
     private void initializeButtons() {
         mAuth = FirebaseAuth.getInstance();
+
+
+
         btnSignUp.setEnabled(true);
         btnLogin.setEnabled(true);
 
@@ -104,6 +111,8 @@ public class Login extends AppCompatActivity {
                     }
                 });
             }
+
+
         });
     }
 
@@ -121,6 +130,9 @@ public class Login extends AppCompatActivity {
                             Toast t =  Toast.makeText(Login.this,"Login successfully!",Toast.LENGTH_SHORT);
                             t.show();
                             Intent intent = new Intent(Login.this,MainActivity.class);
+
+                            String UID = mAuth.getCurrentUser().getUid();
+                            intent.putExtra("UID",UID);
                             startActivity(intent);
 
                         }

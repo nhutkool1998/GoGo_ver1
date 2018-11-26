@@ -14,8 +14,10 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_margin="16dp"
-        android:background="@color/colorCardActivity"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/round_button_less"
         android:padding="4dp"
         android:drawableEnd="@drawable/icon_search"
+        android:backgroundTint="@color/colorCardActivity"
         android:prompt="@string/enter_a_name_here_to_invite_or_remove"/>
 </FrameLayout>

@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#FFFF"
-
     tools:context=".Login">
     <ImageView
         android:layout_width="150dp"
@@ -19,7 +18,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:background="@color/colorCardActivity"
+        android:background="@drawable/round_button_less"
+        android:backgroundTint="@color/colorCardActivity"
         android:hint="Enter email here"
         android:layout_marginStart="36dp"
         android:layout_marginEnd="36dp"
@@ -32,7 +32,8 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorCardActivity"
+        android:background="@drawable/round_button_less"
+        android:backgroundTint="@color/colorCardActivity"
         android:hint="Enter password here"
         android:layout_marginStart="36dp"
         android:layout_marginEnd="36dp"
@@ -52,7 +53,9 @@
             android:layout_width="120dp"
             android:layout_gravity="center"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
+            android:background="@drawable/round_button"
+            android:layout_marginBottom="8dp"
+
             android:layout_marginStart="36dp"
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_alignParentStart="true"
@@ -64,7 +67,8 @@
             android:layout_width="120dp"
             android:layout_gravity="center"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
+            android:background="@drawable/round_button"
+            android:layout_marginBottom="8dp"
             android:layout_marginEnd="36dp"
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_alignParentEnd="true"
@@ -82,5 +86,6 @@
         android:textColorLink="#0000FF"
         android:textColor="#0000FF"
         android:gravity="right"
+        android:id="@+id/linkForgetPassword"
         />
 </LinearLayout>
