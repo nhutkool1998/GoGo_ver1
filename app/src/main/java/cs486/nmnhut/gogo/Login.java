@@ -16,6 +16,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
 
 public class Login extends AppCompatActivity {
 
@@ -96,7 +97,8 @@ public class Login extends AppCompatActivity {
                         }
                         else
                         {
-                            Toast t = Toast.makeText(Login.this,"Sign up fail! Make sure email is of right format and password length is at least 6", Toast.LENGTH_SHORT);
+                            FirebaseAuthException e = (FirebaseAuthException)task.getException();
+                            Toast t = Toast.makeText(Login.this,"Sign up failed" + e.getMessage(), Toast.LENGTH_SHORT);
                             t.show();
                         }
                     }
