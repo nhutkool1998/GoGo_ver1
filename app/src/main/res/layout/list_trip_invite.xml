@@ -34,13 +34,14 @@
                android:layout_height="wrap_content"
                android:id="@+id/txtInvitation"
                android:layout_row="1"
-               android:layout_marginStart="@dimen/activity_horizontal_margin"
+               android:layout_marginStart="24dp"
                android:text="@string/super_long_string"
                android:ellipsize="none"
                android:maxLines="5"
                android:scrollHorizontally="false"
                android:layout_columnSpan="2"
                android:layout_marginBottom="@dimen/activity_vertical_margin"
+
                />
            <Button
                android:layout_width="0dp"

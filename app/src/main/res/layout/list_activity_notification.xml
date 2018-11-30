@@ -32,8 +32,7 @@
                android:layout_width="match_parent"
                android:layout_height="wrap_content"
                android:id="@+id/txtInvitation"
-
-               android:layout_marginStart="@dimen/activity_horizontal_margin"
+               android:layout_marginStart="24dp"
                android:layout_marginEnd="@dimen/activity_horizontal_margin"
                android:text="@string/you_are_currently_on_a_trip_ncheck_out_the_plan"
                android:ellipsize="none"
@@ -54,7 +53,7 @@
                    android:layout_marginBottom="8dp"
                    android:layout_marginTop="4dp"
                    android:layout_gravity="center"
-                   android:text="My Current Trip!"
+                   android:text="My Current Trips!"
                    android:textAllCaps="false"
                    android:background="@drawable/round_button"
                    android:id="@+id/btnCurrentTrip"

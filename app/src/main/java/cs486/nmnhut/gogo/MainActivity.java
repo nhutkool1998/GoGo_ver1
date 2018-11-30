@@ -1,6 +1,8 @@
 package cs486.nmnhut.gogo;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,18 +16,26 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -34,7 +44,7 @@ public class MainActivity extends AppCompatActivity
     final int LocationPermission = 101;
 
     ArrayList<mNotification> mNotificationArrayList;
-
+    NotificationAdapter notificationAdapter;
     RecyclerView notificationList;
     FirebaseDatabase db;
 
@@ -44,11 +54,11 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -56,13 +66,13 @@ public class MainActivity extends AppCompatActivity
 
         setUIVariables();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
 
         mNotificationArrayList = new ArrayList<>();
 
-       setSampleData();
+        //setSampleData();
 
        checkPermissions_and_Initialize();
 
@@ -112,7 +122,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setPermissionDeniedNotification() {
-
+        //TODO: set permission denined
     }
 
     private void initialize() {
@@ -122,12 +132,12 @@ public class MainActivity extends AppCompatActivity
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 mNotification newNotification = dataSnapshot.getValue(mNotification.class);
                 mNotificationArrayList.add(newNotification);
+                notificationAdapter.add(newNotification);
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                GenericTypeIndicator<ArrayList<mNotification>> t = new GenericTypeIndicator<ArrayList<mNotification>>() {};
-                mNotificationArrayList = dataSnapshot.getValue(t);
+
             }
 
             @Override
@@ -149,20 +159,37 @@ public class MainActivity extends AppCompatActivity
         db = FirebaseDatabase.getInstance();
         UID = this.getIntent().getStringExtra("UID");
         DatabaseReference ref = db.getReference("notif/"+UID);
+        //writeSampleData();
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                GenericTypeIndicator<ArrayList<mNotification>> t = new GenericTypeIndicator<ArrayList<mNotification>>() {
+                };
+                mNotificationArrayList = dataSnapshot.getValue(t);
+                notificationAdapter = new NotificationAdapter(mNotificationArrayList);
+                notificationList.setLayoutManager(new LinearLayoutManager(MainActivity.this));
 
+                notificationList.setAdapter(notificationAdapter);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
         ref.addChildEventListener(childEventListener);
-
-        NotificationAdapter notificationAdapter = new NotificationAdapter(mNotificationArrayList);
-        notificationList.setLayoutManager(new LinearLayoutManager(this));
-
-        notificationList.setAdapter(notificationAdapter);
 
 
     }
 
+    private void writeSampleData() {
+        DatabaseReference ref = db.getReference("notif/" + UID);
+        ref.setValue(mNotificationArrayList);
+    }
+
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -201,35 +228,184 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_gallery) {
 
         } else if (id == R.id.nav_trip) {
+            LaunchCurrentTrips();
 
         } else if (id == R.id.nav_logout) {
-
+            LogOut();
 
 
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    public static void LaunchCurrentTrip()
-    {
-        //TODO: implement currentrip
+    private void LogOut() {
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        mAuth.signOut();
+        Intent intent = new Intent(MainActivity.this, Login.class)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        this.startActivity(intent);
+        this.finish();
     }
 
-    public static void ShowNewTripScreen()
+    public void LaunchCurrentTrips()
+    {
+        //TODO: implement currentrip
+        Intent intent = new Intent(this, TripList.class);
+        startActivity(intent);
+    }
+
+    public void ShowNewTripScreen()
     {
         //TODO: implement show new trip screen
     }
 
-    public static void AcceptInvitation(mNotification invitation)
-    {
-        //TODO: implement acitivity invitation
-    }
 
-    public static void ShowChatBox()
+    public void ShowChatBox()
     {
         //TODO: implement show chat box;
+    }
+
+    public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+        private ArrayList<mNotification> list;
+
+        public NotificationAdapter(ArrayList<mNotification> items) {
+            this.list = items;
+        }
+
+        @Override
+        public int getItemCount() {
+            return this.list.size();
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return list.get(position).getType();
+        }
+
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+            RecyclerView.ViewHolder viewHolder;
+            LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
+
+            switch (viewType) {
+                case mNotification.ACTIVITY_NOTIFICATION:
+                    View v1 = inflater.inflate(R.layout.list_activity_notification, viewGroup, false);
+                    viewHolder = new ViewHolder_current_trip(v1);
+                    break;
+
+                case mNotification.TRIP_INVITATION:
+                    View v = inflater.inflate(R.layout.list_trip_invite, viewGroup, false);
+                    viewHolder = new ViewHolder_invitation(v);
+                    break;
+
+
+                default:
+                    View v2 = inflater.inflate(R.layout.list_new_trip, viewGroup, false);
+                    viewHolder = new ViewHolder_new_trip(v2);
+                    break;
+            }
+            return viewHolder;
+        }
+
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+            switch (viewHolder.getItemViewType()) {
+                case mNotification.ACTIVITY_NOTIFICATION:
+                    ViewHolder_current_trip vh1 = (ViewHolder_current_trip) viewHolder;
+                    configure_current_trip(vh1, position);
+                    break;
+                case mNotification.NEW_TRIP:
+                    ViewHolder_new_trip vh2 = (ViewHolder_new_trip) viewHolder;
+                    configure_new_trip(vh2, position);
+                    break;
+
+                case mNotification.TRIP_KICKED:
+                    ViewHolder_new_trip vh5 = (ViewHolder_new_trip) viewHolder;
+                    configure_trip_kicked(vh5, position);
+                    break;
+                case mNotification.TRIP_INVITATION:
+                    ViewHolder_invitation vh3 = (ViewHolder_invitation) viewHolder;
+                    configure_invitation(vh3, position);
+                    break;
+            }
+        }
+
+        private void configure_invitation(ViewHolder_invitation vh3, final int position) {
+            TextView txtInviter = vh3.getTxtInviter();
+            txtInviter.setText(list.get(position).getPerson());
+
+            TextView txtInvitation = vh3.getTxtInvitation();
+            txtInvitation.setText(list.get(position).getMessage());
+
+            Button btnAccept = vh3.getBtnAccept();
+            btnAccept.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    DatabaseHelper.AcceptInvitation(list.get(position), DatabaseHelper.currentUserID());
+                }
+            });
+
+            Button btnDecline = vh3.getBtnDelcine();
+            btnDecline.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    DatabaseHelper.DeclineInvitation(list.get(position), DatabaseHelper.currentUserID());
+                }
+            });
+        }
+
+        private void configure_new_trip(ViewHolder_new_trip vh2, int position) {
+            Button btnNewTrip = vh2.getBtnNewTrip();
+
+            btnNewTrip.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ShowNewTripScreen();
+                }
+            });
+
+        }
+
+        private void configure_trip_kicked(ViewHolder_new_trip vh2, int position) {
+            Button btnNewTrip = vh2.getBtnNewTrip();
+            TextView txt = vh2.getTxtMessage();
+            String m = "You are removed from a trip by " + list.get(position).getPerson();
+            txt.setText(m);
+            btnNewTrip.setVisibility(View.INVISIBLE);
+        }
+
+        private void configure_current_trip(ViewHolder_current_trip vh1, int position) {
+
+            Button btnCurrentTrip = vh1.getBtnCurrentTrip();
+            btnCurrentTrip.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    LaunchCurrentTrips();
+                }
+            });
+
+            Button btnShowChatBox = vh1.getBtnChatBox();
+            btnCurrentTrip.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ShowChatBox();
+                }
+            });
+        }
+
+        void add(mNotification notification) {
+            list.add(0, notification);
+            notifyItemInserted(0);
+        }
+
+        void update(ArrayList<mNotification> list) {
+            this.list = list;
+            notifyDataSetChanged();
+        }
     }
 }

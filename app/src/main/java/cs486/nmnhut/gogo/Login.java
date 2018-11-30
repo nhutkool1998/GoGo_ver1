@@ -134,6 +134,7 @@ public class Login extends AppCompatActivity {
                             String UID = mAuth.getCurrentUser().getUid();
                             intent.putExtra("UID",UID);
                             startActivity(intent);
+                            finish();
 
                         }
                         else
