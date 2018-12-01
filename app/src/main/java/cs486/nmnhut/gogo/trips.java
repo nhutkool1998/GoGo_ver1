@@ -52,7 +52,7 @@ public class trips extends AppCompatActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
-    public static String TripID = null;
+    public static String TripID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,6 +124,7 @@ public class trips extends AppCompatActivity {
         public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
             View v = inflater.inflate(R.layout.fragment_plan, container, false);
             listViewActivity = v.findViewById(R.id.listViewActivity);
+            activities = new ArrayList<>();
             linearLayoutManager = new LinearLayoutManager(container.getContext());
             listViewActivity.setLayoutManager(linearLayoutManager);
             FirebaseDatabase db = FirebaseDatabase.getInstance();
@@ -275,9 +276,9 @@ public class trips extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            if (position == 0)
+            if (position == 1)
                 return new FragmentPlan();
-            return null;
+            return new FragmentPlan();
         }
 
         @Override
@@ -286,8 +287,5 @@ public class trips extends AppCompatActivity {
         }
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
 
 }

@@ -6,14 +6,14 @@ class TripActivity {
     String startDate;
     String endDate;
     String place;
-    boolean Alarm;
+    boolean alarm;
 
     public boolean isAlarm() {
-        return Alarm;
+        return alarm;
     }
 
     public void setAlarm(boolean alarm) {
-        Alarm = alarm;
+        this.alarm = alarm;
     }
 
     TripActivity() {

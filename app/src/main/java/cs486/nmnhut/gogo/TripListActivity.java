@@ -189,7 +189,7 @@ public class TripListActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(TripListActivity.this, trips.class);
-                    intent.putExtra("Trip", temp.TripID);
+                    intent.putExtra("TripID", temp.TripID);
                     startActivity(intent);
                 }
             });
