@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -32,7 +32,7 @@
            <TextView
                android:layout_width="match_parent"
                android:layout_height="wrap_content"
-               android:id="@+id/txtInvitation"
+               android:id="@+id/txtNotification"
                android:layout_row="1"
                android:layout_marginStart="24dp"
                android:text="@string/super_long_string"
@@ -77,4 +77,4 @@
        </GridLayout>
 
    </android.support.v7.widget.CardView>
-</LinearLayout>
+</FrameLayout>

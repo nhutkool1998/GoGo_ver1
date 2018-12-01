@@ -1,13 +1,15 @@
 package cs486.nmnhut.gogo;
 
 import android.Manifest;
-import android.content.Context;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -31,8 +33,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -42,9 +42,9 @@ public class MainActivity extends AppCompatActivity
 
     final int NetworkPermission = 100;
     final int LocationPermission = 101;
-
-    ArrayList<mNotification> mNotificationArrayList;
-    NotificationAdapter notificationAdapter;
+    LinearLayoutManager linearLayoutManager = null;
+    ArrayList<mNotification> mNotificationArrayList = null;
+    NotificationAdapter notificationAdapter = null;
     RecyclerView notificationList;
     FirebaseDatabase db;
 
@@ -125,13 +125,22 @@ public class MainActivity extends AppCompatActivity
         //TODO: set permission denined
     }
 
-    private void initialize() {
 
+    private void initialize() {
+        if (linearLayoutManager == null)
+            linearLayoutManager = new LinearLayoutManager(MainActivity.this);
+        if (mNotificationArrayList == null)
+            mNotificationArrayList = new ArrayList<>();
+        if (notificationAdapter == null)
+            notificationAdapter = new NotificationAdapter(mNotificationArrayList);
+        notificationList.setLayoutManager(linearLayoutManager);
+        notificationList.setAdapter(notificationAdapter);
+        notificationAdapter.notifyDataSetChanged();
         ChildEventListener childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 mNotification newNotification = dataSnapshot.getValue(mNotification.class);
-                mNotificationArrayList.add(newNotification);
+                //   mNotificationArrayList.add(newNotification);
                 notificationAdapter.add(newNotification);
             }
 
@@ -160,13 +169,12 @@ public class MainActivity extends AppCompatActivity
         UID = this.getIntent().getStringExtra("UID");
         DatabaseReference ref = db.getReference("notif/"+UID);
         //writeSampleData();
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+        /*ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 GenericTypeIndicator<ArrayList<mNotification>> t = new GenericTypeIndicator<ArrayList<mNotification>>() {
                 };
                 mNotificationArrayList = dataSnapshot.getValue(t);
-                notificationAdapter = new NotificationAdapter(mNotificationArrayList);
                 notificationList.setLayoutManager(new LinearLayoutManager(MainActivity.this));
 
                 notificationList.setAdapter(notificationAdapter);
@@ -176,7 +184,7 @@ public class MainActivity extends AppCompatActivity
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
+        });*/
         ref.addChildEventListener(childEventListener);
 
 
@@ -254,8 +262,20 @@ public class MainActivity extends AppCompatActivity
     public void LaunchCurrentTrips()
     {
         //TODO: implement currentrip
-        Intent intent = new Intent(this, TripList.class);
-        startActivity(intent);
+        Intent detailsIntent = new Intent(this, TripListActivity.class);
+
+// Use TaskStackBuilder to build the back stack and get the PendingIntent
+        PendingIntent pendingIntent =
+                TaskStackBuilder.create(this)
+                        // add all of DetailsActivity's parents to the stack,
+                        // followed by DetailsActivity itself
+                        .addNextIntentWithParentStack(detailsIntent)
+                        .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setContentIntent(pendingIntent);
+        startActivity(detailsIntent);
+
     }
 
     public void ShowNewTripScreen()
@@ -357,6 +377,8 @@ public class MainActivity extends AppCompatActivity
                     DatabaseHelper.DeclineInvitation(list.get(position), DatabaseHelper.currentUserID());
                 }
             });
+            btnAccept.setFocusable(false);
+            btnDecline.setFocusable(false);
         }
 
         private void configure_new_trip(ViewHolder_new_trip vh2, int position) {
@@ -368,6 +390,7 @@ public class MainActivity extends AppCompatActivity
                     ShowNewTripScreen();
                 }
             });
+            btnNewTrip.setFocusable(false);
 
         }
 
@@ -382,20 +405,24 @@ public class MainActivity extends AppCompatActivity
         private void configure_current_trip(ViewHolder_current_trip vh1, int position) {
 
             Button btnCurrentTrip = vh1.getBtnCurrentTrip();
+
             btnCurrentTrip.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     LaunchCurrentTrips();
                 }
             });
+            btnCurrentTrip.setFocusable(false);
 
             Button btnShowChatBox = vh1.getBtnChatBox();
-            btnCurrentTrip.setOnClickListener(new View.OnClickListener() {
+            btnShowChatBox.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     ShowChatBox();
                 }
             });
+            btnShowChatBox.setFocusable(false);
+
         }
 
         void add(mNotification notification) {

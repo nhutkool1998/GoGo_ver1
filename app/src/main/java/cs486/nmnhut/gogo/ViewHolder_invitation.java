@@ -50,7 +50,7 @@ public class ViewHolder_invitation extends RecyclerView.ViewHolder{
     public ViewHolder_invitation(View v)
     {
         super(v);
-        txtInvitation = v.findViewById(R.id.txtInvitation);
+        txtInvitation = v.findViewById(R.id.txtNotification);
         txtInviter = v.findViewById(R.id.txtInviter);
         btnAccept = v.findViewById(R.id.btnAcceptTripInvitation);
         btnDelcine = v.findViewById(R.id.btnDeclineTripInvitation);

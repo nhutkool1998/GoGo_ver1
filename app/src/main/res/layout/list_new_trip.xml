@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_marginTop="@dimen/activity_vertical_margin"
     android:layout_height="wrap_content">
@@ -30,7 +29,7 @@
            <TextView
                android:layout_width="match_parent"
                android:layout_height="wrap_content"
-               android:id="@+id/txtAssitantMessage"
+               android:id="@+id/txtAssistantMessage"
 
                android:layout_marginStart="24dp"
                android:layout_marginEnd="@dimen/activity_horizontal_margin"
@@ -49,7 +48,6 @@
                    android:layout_marginBottom="8dp"
                    android:layout_gravity="center"
                    android:text="Host a trip!"
-
                    android:textAllCaps="false"
                    android:layout_marginTop="4dp"
                    android:background="@drawable/round_button"
@@ -61,4 +59,4 @@
        </LinearLayout>
 
    </android.support.v7.widget.CardView>
-</LinearLayout>
+</FrameLayout>

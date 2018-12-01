@@ -31,7 +31,7 @@ public class ViewHolder_new_trip extends RecyclerView.ViewHolder{
     {
         super(v);
         btnNewTrip = v.findViewById(R.id.btnHostTrip);
-        txtMessage = v.findViewById(R.id.txtAssitantMessage);
+        txtMessage = v.findViewById(R.id.txtAssistantMessage);
     }
 }
 

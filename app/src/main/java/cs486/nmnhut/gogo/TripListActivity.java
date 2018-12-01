@@ -19,18 +19,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class TripList extends AppCompatActivity {
+public class TripListActivity extends AppCompatActivity {
     static boolean firstrun = false;
     final int NetworkPermission = 100;
     ListView TripListView;
@@ -50,7 +48,7 @@ public class TripList extends AppCompatActivity {
     }
 
     private void checkPermissions_and_Initialize() {
-        if (ContextCompat.checkSelfPermission(TripList.this, Manifest.permission.INTERNET)
+        if (ContextCompat.checkSelfPermission(TripListActivity.this, Manifest.permission.INTERNET)
                 != PackageManager.PERMISSION_GRANTED) {
             Toast t = Toast.makeText(this, "Permission Not granted", Toast.LENGTH_SHORT);
             t.show();
@@ -78,6 +76,7 @@ public class TripList extends AppCompatActivity {
     }
 
     private void initialize() {
+        myTrips = new HashMap<>();
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         final ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
@@ -128,13 +127,13 @@ public class TripList extends AppCompatActivity {
         l = new ArrayList<>();
         for (String s : myTrips.keySet()) {
             MyTrip temp = myTrips.get(s);
-            l.add(new TripItem(temp.Description, s));
+            l.add(new TripItem(temp.tripDescription, s));
         }
         TripListView.setAdapter(new TripListAdapter(l, this));
         TripListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(TripList.this, trips.class);
+                Intent intent = new Intent(TripListActivity.this, trips.class);
                 intent.putExtra("TripID", l.get(position).TripID);
                 startActivity(intent);
             }
@@ -157,7 +156,7 @@ public class TripList extends AppCompatActivity {
         Context context;
 
         public TripListAdapter(ArrayList<TripItem> list, Context context) {
-            super(TripList.this, R.layout.list_trip_item, list);
+            super(TripListActivity.this, R.layout.list_trip_item, list);
             this.list = list;
             this.context = context;
         }

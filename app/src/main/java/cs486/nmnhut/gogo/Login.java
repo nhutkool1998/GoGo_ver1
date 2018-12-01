@@ -78,7 +78,7 @@ public class Login extends AppCompatActivity {
     private void initializeButtons() {
         mAuth = FirebaseAuth.getInstance();
 
-
+        //DatabaseHelper.SampleTrip();
 
         btnSignUp.setEnabled(true);
         btnLogin.setEnabled(true);

@@ -9,6 +9,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+
 public class DatabaseHelper {
     static FirebaseDatabase db;
     static int count = 0;
@@ -26,6 +28,35 @@ public class DatabaseHelper {
         //TODO: implement acitivity invitation
     }
 
+    public static void SampleTrip() {
+        TripPlan tripPlan = new TripPlan();
+        tripPlan.startDate = "2017/11/31";
+        tripPlan.endDate = "2018/11/31";
+
+        ArrayList<TripActivity> tripActivities = new ArrayList<>();
+        TripActivity tripActivity = new TripActivity();
+        tripActivity.startDate = tripPlan.getStartDate();
+        tripActivity.endDate = tripPlan.endDate;
+        tripActivity.place = "HCMC";
+
+        MyTrip myTrip = new MyTrip();
+        myTrip.hostID = currentUserID();
+        myTrip.tripDescription = "tripDescription";
+        myTrip.hostName = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+
+
+        tripActivities.add(tripActivity);
+        tripPlan.activities = tripActivities;
+        myTrip.plan = tripPlan;
+
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference ref = db.getReference("trip");
+        DatabaseReference r = ref.push();
+        r.setValue(myTrip);
+
+        DatabaseReference ref2 = db.getReference("user/" + currentUserID() + "/trip");
+        ref2.child(r.getKey()).setValue(true);
+    }
 
     public static void RemoveMember(final String TripID, String MemberName) {
         FirebaseDatabase db = FirebaseDatabase.getInstance();
