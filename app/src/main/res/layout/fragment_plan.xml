@@ -5,11 +5,11 @@
     android:id="@+id/fragmentTrip"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".trips$PlaceholderFragment">
+    tools:context=".trips$FragmentPlan">
 
-    <ListView
-        android:id="@+id/section_label"
-        android:layout_width="wrap_content"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/listViewActivity"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginTop="@dimen/activity_vertical_margin"

@@ -1,7 +1,11 @@
 package cs486.nmnhut.gogo;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
@@ -15,7 +19,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import android.widget.TextView;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ToggleButton;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+
+import static cs486.nmnhut.gogo.DatabaseHelper.turnNotificationAt;
 
 public class trips extends AppCompatActivity {
 
@@ -33,6 +52,7 @@ public class trips extends AppCompatActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+    public static String TripID = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +66,13 @@ public class trips extends AppCompatActivity {
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
+        TripID = this.getIntent().getStringExtra("TripID");
+
+
         // Set up the ViewPager with the sections adapter.
-        mViewPager = findViewById(R.id.container2);
+
+        mViewPager = findViewById(R.id.container);
+
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         TabLayout tabLayout = findViewById(R.id.tabs);
@@ -78,62 +103,191 @@ public class trips extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
+    public static class FragmentPlan extends Fragment {
+        RecyclerView listViewActivity;
+        ArrayList<PlanItem> planItems;
+        ArrayList<TripActivity> activities;
+        FragmentPlanListAdapter adapter;
+        LinearLayoutManager linearLayoutManager;
 
-        public PlaceholderFragment() {
-        }
+        public FragmentPlan() {
 
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_plan, container, false);
-            TextView textView = rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
-            return rootView;
+        public void onCreate(@Nullable Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+        }
+
+        @Nullable
+        @Override
+        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+            View v = inflater.inflate(R.layout.fragment_plan, container, false);
+            listViewActivity = v.findViewById(R.id.listViewActivity);
+            linearLayoutManager = new LinearLayoutManager(container.getContext());
+            listViewActivity.setLayoutManager(linearLayoutManager);
+            FirebaseDatabase db = FirebaseDatabase.getInstance();
+
+            DatabaseReference ref = db.getReference("trip/" + TripID + "/plan");
+            ref.child("activities").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    GenericTypeIndicator<ArrayList<TripActivity>> t = new GenericTypeIndicator<ArrayList<TripActivity>>() {
+                    };
+                    if (dataSnapshot.exists()) {
+                        activities = dataSnapshot.getValue(t);
+                        adapter = new FragmentPlanListAdapter(activities);
+                        listViewActivity.setAdapter(adapter);
+
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+            return v;
+        }
+
+        class PlanItem extends RecyclerView.ViewHolder {
+            EditText txtStartTime, txtEndTime, txtPlace;
+            ImageButton btnDeleteThisActivity;
+            ToggleButton toggleBtnNotificationOnOff;
+
+            public PlanItem(View itemView) {
+                super(itemView);
+                txtPlace = itemView.findViewById(R.id.txtPlace);
+                txtStartTime = itemView.findViewById(R.id.txtTimeStart);
+                txtEndTime = itemView.findViewById(R.id.txtTimeEnd);
+                btnDeleteThisActivity = itemView.findViewById(R.id.btnDeleteThisActivity);
+                toggleBtnNotificationOnOff = itemView.findViewById(R.id.toggleBtnNotification);
+            }
+
+            public EditText getTxtStartTime() {
+                return txtStartTime;
+            }
+
+            public void setTxtStartTime(EditText txtStartTime) {
+                this.txtStartTime = txtStartTime;
+            }
+
+            public EditText getTxtEndTime() {
+                return txtEndTime;
+            }
+
+            public void setTxtEndTime(EditText txtEndTime) {
+                this.txtEndTime = txtEndTime;
+            }
+
+            public EditText getTxtPlace() {
+                return txtPlace;
+            }
+
+            public void setTxtPlace(EditText txtPlace) {
+                this.txtPlace = txtPlace;
+            }
+
+            public ImageButton getBtnDeleteThisActivity() {
+                return btnDeleteThisActivity;
+            }
+
+            public void setBtnDeleteThisActivity(ImageButton btnDeleteThisActivity) {
+                this.btnDeleteThisActivity = btnDeleteThisActivity;
+            }
+
+            public ToggleButton getToggleBtnNotificationOnOff() {
+                return toggleBtnNotificationOnOff;
+            }
+
+            public void setToggleBtnNotificationOnOff(ToggleButton toggleBtnNotificationOnOff) {
+                this.toggleBtnNotificationOnOff = toggleBtnNotificationOnOff;
+            }
+        }
+
+        public class FragmentPlanListAdapter extends RecyclerView.Adapter<PlanItem> {
+
+            ArrayList<TripActivity> list;
+
+            public FragmentPlanListAdapter(ArrayList<TripActivity> list) {
+                this.list = list;
+
+            }
+
+            @NonNull
+            @Override
+            public PlanItem onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View itemView = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.list_activity_item, parent, false);
+
+                return new PlanItem(itemView);
+            }
+
+            @Override
+            public void onBindViewHolder(@NonNull PlanItem holder, final int position) {
+                EditText txtPlace = holder.getTxtPlace();
+                EditText txtStartTime = holder.getTxtStartTime();
+                EditText txtEndTime = holder.getTxtEndTime();
+                ImageButton btnDeleteThisActivity = holder.getBtnDeleteThisActivity();
+                final ToggleButton toggleBtnNotificationOnOff = holder.getToggleBtnNotificationOnOff();
+
+                btnDeleteThisActivity.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        activities.remove(position);
+                        FirebaseDatabase db = FirebaseDatabase.getInstance();
+                        DatabaseReference ref = db.getReference("trip/" + TripID + "/plan");
+                        ref.setValue(activities);
+                    }
+                });
+
+                toggleBtnNotificationOnOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        activities.get(position).setAlarm(isChecked);
+                        FirebaseDatabase db = FirebaseDatabase.getInstance();
+                        DatabaseReference ref = db.getReference("trip/" + TripID + "/plan");
+                        ref.setValue(activities);
+                        turnNotificationAt(activities.get(position).getStartDate(), isChecked);
+                    }
+                });
+
+
+                btnDeleteThisActivity.setFocusable(false);
+                toggleBtnNotificationOnOff.setFocusable(false);
+
+                txtPlace.setText(list.get(position).getPlace());
+                txtStartTime.setText(list.get(position).getStartDate());
+                txtEndTime.setText(list.get(position).getEndDate());
+            }
+
+            @Override
+            public int getItemCount() {
+                return list.size();
+            }
         }
     }
 
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
+    private class SectionsPagerAdapter extends FragmentPagerAdapter {
+        public SectionsPagerAdapter(FragmentManager supportFragmentManager) {
+            super(supportFragmentManager);
         }
 
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            if (position == 0)
+                return new FragmentPlan();
+            return null;
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
             return 2;
         }
     }
+
+    /**
+     * A placeholder fragment containing a simple view.
+     */
+
 }

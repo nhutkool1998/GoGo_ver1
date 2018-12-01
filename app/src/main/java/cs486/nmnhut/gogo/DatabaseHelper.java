@@ -58,6 +58,9 @@ public class DatabaseHelper {
         ref2.child(r.getKey()).setValue(true);
     }
 
+    public static void turnNotificationAt(String time, boolean isOn) {
+
+    }
     public static void RemoveMember(final String TripID, String MemberName) {
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         DatabaseReference ref = db.getReference("user");

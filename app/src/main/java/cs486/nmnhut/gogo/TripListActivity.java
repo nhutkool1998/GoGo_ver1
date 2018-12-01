@@ -163,7 +163,7 @@ public class TripListActivity extends AppCompatActivity {
 
         @NonNull
         @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
             ViewHolder viewHolder;
             if (convertView == null) {
                 viewHolder = new ViewHolder();
@@ -182,6 +182,15 @@ public class TripListActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     DatabaseHelper.RemoveTrip(temp.TripID);
+                }
+            });
+            viewHolder.btnRemove.setFocusable(false);
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(TripListActivity.this, trips.class);
+                    intent.putExtra("Trip", temp.TripID);
+                    startActivity(intent);
                 }
             });
             return convertView;
