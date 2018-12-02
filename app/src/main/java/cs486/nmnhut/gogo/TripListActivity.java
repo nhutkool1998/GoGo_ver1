@@ -32,7 +32,7 @@ public class TripListActivity extends AppCompatActivity {
     static boolean firstrun = false;
     final int NetworkPermission = 100;
     ListView TripListView;
-    HashMap<String, MyTrip> myTrips;
+    static HashMap<String, MyTrip> myTrips;
     ArrayList<TripItem> l;
     int previous_count = 0;
     TripListAdapter tripListAdapter;
@@ -91,7 +91,7 @@ public class TripListActivity extends AppCompatActivity {
             }
         };
         DatabaseReference ref = db.getReference("user/" + DatabaseHelper.currentUserID());
-        ref.child("trip").addValueEventListener(new ValueEventListener() {
+        ValueEventListener populateTripRecycleView = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
@@ -119,7 +119,8 @@ public class TripListActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
+        };
+        ref.child("trip").addValueEventListener(populateTripRecycleView);
 
     }
 

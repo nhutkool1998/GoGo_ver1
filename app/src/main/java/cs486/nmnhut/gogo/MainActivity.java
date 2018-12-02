@@ -43,20 +43,51 @@ public class MainActivity extends AppCompatActivity
     final int NetworkPermission = 100;
     final int LocationPermission = 101;
     LinearLayoutManager linearLayoutManager = null;
-    ArrayList<mNotification> mNotificationArrayList = null;
+    static ArrayList<mNotification> mNotificationArrayList = null;
     NotificationAdapter notificationAdapter = null;
     RecyclerView notificationList;
     FirebaseDatabase db;
+    private final ChildEventListener childEventListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+            mNotification newNotification = dataSnapshot.getValue(mNotification.class);
+            //   mNotificationArrayList.add(newNotification);
+            notificationAdapter.add(newNotification);
+        }
 
-    String UID;
+        @Override
+        public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+        }
+
+        @Override
+        public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+        }
+
+        @Override
+        public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+        }
+    };
+    String UID;//   mNotificationArrayList.add(newNotification);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
+        if (savedInstanceState != null)
+            return;
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        DatabaseHelper.SampleTrip();
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -70,12 +101,19 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        mNotificationArrayList = new ArrayList<>();
+        // mNotificationArrayList = new ArrayList<>();
 
         //setSampleData();
 
        checkPermissions_and_Initialize();
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        notificationList.setLayoutManager(linearLayoutManager);
+        notificationList.setAdapter(notificationAdapter);
     }
 
     private void setSampleData() {
@@ -135,35 +173,7 @@ public class MainActivity extends AppCompatActivity
             notificationAdapter = new NotificationAdapter(mNotificationArrayList);
         notificationList.setLayoutManager(linearLayoutManager);
         notificationList.setAdapter(notificationAdapter);
-        notificationAdapter.notifyDataSetChanged();
-        ChildEventListener childEventListener = new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                mNotification newNotification = dataSnapshot.getValue(mNotification.class);
-                //   mNotificationArrayList.add(newNotification);
-                notificationAdapter.add(newNotification);
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        };
+        // notificationAdapter.notifyDataSetChanged();
 
         db = FirebaseDatabase.getInstance();
         UID = this.getIntent().getStringExtra("UID");
@@ -262,19 +272,10 @@ public class MainActivity extends AppCompatActivity
     public void LaunchCurrentTrips()
     {
         //TODO: implement currentrip
-        Intent detailsIntent = new Intent(this, TripListActivity.class);
 
-// Use TaskStackBuilder to build the back stack and get the PendingIntent
-        PendingIntent pendingIntent =
-                TaskStackBuilder.create(this)
-                        // add all of DetailsActivity's parents to the stack,
-                        // followed by DetailsActivity itself
-                        .addNextIntentWithParentStack(detailsIntent)
-                        .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent detailsIntent = new Intent(MainActivity.this, TripListActivity.class);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        builder.setContentIntent(pendingIntent);
-        startActivity(detailsIntent);
+        MainActivity.this.startActivity(detailsIntent);
 
     }
 

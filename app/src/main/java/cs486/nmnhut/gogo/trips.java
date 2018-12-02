@@ -1,8 +1,10 @@
 package cs486.nmnhut.gogo;
 
+import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +15,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,6 +27,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.google.firebase.database.DataSnapshot;
@@ -38,19 +43,8 @@ import static cs486.nmnhut.gogo.DatabaseHelper.turnNotificationAt;
 
 public class trips extends AppCompatActivity {
 
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
-    private SectionsPagerAdapter mSectionsPagerAdapter;
 
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
+    private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
     public static String TripID;
 
@@ -62,6 +56,8 @@ public class trips extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -71,9 +67,11 @@ public class trips extends AppCompatActivity {
 
         // Set up the ViewPager with the sections adapter.
 
+
         mViewPager = findViewById(R.id.container);
 
         mViewPager.setAdapter(mSectionsPagerAdapter);
+
 
         TabLayout tabLayout = findViewById(R.id.tabs);
 
@@ -110,6 +108,8 @@ public class trips extends AppCompatActivity {
         FragmentPlanListAdapter adapter;
         LinearLayoutManager linearLayoutManager;
 
+        Button btnSaveChange, btnNewTripActivity;
+
         public FragmentPlan() {
 
         }
@@ -123,6 +123,35 @@ public class trips extends AppCompatActivity {
         @Override
         public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
             View v = inflater.inflate(R.layout.fragment_plan, container, false);
+
+            btnNewTripActivity = v.findViewById(R.id.btnNewTripActivity);
+            btnSaveChange = v.findViewById(R.id.btnSaveChanges);
+
+            btnSaveChange.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    FirebaseDatabase db = FirebaseDatabase.getInstance();
+                    DatabaseReference ref = db.getReference("trip/" + TripID + "/plan/activities");
+                    ref.setValue(activities);
+                }
+            });
+
+            btnNewTripActivity.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    TripActivity tripActivity = new TripActivity();
+                    tripActivity.setAlarm(false);
+                    tripActivity.place = "";
+                    tripActivity.startDate = "";
+                    tripActivity.endDate = "";
+                    activities.add(tripActivity);
+                    adapter.notifyItemInserted(activities.size() - 1);
+                    FirebaseDatabase db = FirebaseDatabase.getInstance();
+                    DatabaseReference ref = db.getReference("trip/" + TripID + "/plan/activities");
+                    ref.setValue(activities);
+                }
+            });
+
             listViewActivity = v.findViewById(R.id.listViewActivity);
             activities = new ArrayList<>();
             linearLayoutManager = new LinearLayoutManager(container.getContext());
@@ -207,8 +236,24 @@ public class trips extends AppCompatActivity {
         }
 
         public class FragmentPlanListAdapter extends RecyclerView.Adapter<PlanItem> {
-
             ArrayList<TripActivity> list;
+
+            private final TextWatcher enableChangeButton = new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    btnSaveChange.setEnabled(true);
+                }
+            };
 
             public FragmentPlanListAdapter(ArrayList<TripActivity> list) {
                 this.list = list;
@@ -232,27 +277,13 @@ public class trips extends AppCompatActivity {
                 ImageButton btnDeleteThisActivity = holder.getBtnDeleteThisActivity();
                 final ToggleButton toggleBtnNotificationOnOff = holder.getToggleBtnNotificationOnOff();
 
-                btnDeleteThisActivity.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        activities.remove(position);
-                        FirebaseDatabase db = FirebaseDatabase.getInstance();
-                        DatabaseReference ref = db.getReference("trip/" + TripID + "/plan");
-                        ref.setValue(activities);
-                    }
-                });
+                onDeleteActivityClick(position, btnDeleteThisActivity);
 
-                toggleBtnNotificationOnOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        activities.get(position).setAlarm(isChecked);
-                        FirebaseDatabase db = FirebaseDatabase.getInstance();
-                        DatabaseReference ref = db.getReference("trip/" + TripID + "/plan");
-                        ref.setValue(activities);
-                        turnNotificationAt(activities.get(position).getStartDate(), isChecked);
-                    }
-                });
+                onToggleNotificationClick(position, toggleBtnNotificationOnOff);
 
+                txtPlace.addTextChangedListener(enableChangeButton);
+                txtEndTime.addTextChangedListener(enableChangeButton);
+                txtStartTime.addTextChangedListener(enableChangeButton);
 
                 btnDeleteThisActivity.setFocusable(false);
                 toggleBtnNotificationOnOff.setFocusable(false);
@@ -260,6 +291,63 @@ public class trips extends AppCompatActivity {
                 txtPlace.setText(list.get(position).getPlace());
                 txtStartTime.setText(list.get(position).getStartDate());
                 txtEndTime.setText(list.get(position).getEndDate());
+            }
+
+            private void onToggleNotificationClick(int position, ToggleButton toggleBtnNotificationOnOff) {
+                final TripActivity tripActivity = activities.get(position);
+                if (toggleBtnNotificationOnOff.isChecked() != tripActivity.alarm)
+                    toggleBtnNotificationOnOff.setChecked(tripActivity.alarm);
+                toggleBtnNotificationOnOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                        tripActivity.setAlarm(isChecked);
+                        FirebaseDatabase db = FirebaseDatabase.getInstance();
+                        DatabaseReference ref = db.getReference("trip/" + TripID + "/plan/activities");
+                        ref.setValue(activities);
+                        turnNotificationAt(tripActivity.getStartDate(), isChecked);
+                        String s;
+                        if (isChecked)
+                            s = "The application would notify you when the time comes";
+                        else
+                            s = "The application would not notify you about this activity";
+                        Toast t = Toast.makeText(FragmentPlan.this.getContext(), s, Toast.LENGTH_SHORT);
+                        t.show();
+                    }
+                });
+            }
+
+            private void onDeleteActivityClick(final int position, ImageButton btnDeleteThisActivity) {
+                btnDeleteThisActivity.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(FragmentPlan.this.getContext());
+                        builder.setTitle("Confirm delete");
+                        builder.setMessage("Are you sure to delete?");
+                        builder.setCancelable(false);
+                        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                activities.remove(position);
+                                FirebaseDatabase db = FirebaseDatabase.getInstance();
+                                DatabaseReference ref = db.getReference("trip/" + TripID + "/plan/activities");
+                                ref.setValue(activities);
+                                adapter.notifyItemRemoved(position);
+                                Toast t = Toast.makeText(FragmentPlan.this.getContext(), "Activity deleted", Toast.LENGTH_SHORT);
+                                t.show();
+                            }
+                        });
+                        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        });
+
+                        builder.show();
+
+                    }
+                });
             }
 
             @Override
