@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "21463273294",
+    "firebase_url": "https://gogo-2399c.firebaseio.com",
+    "project_id": "gogo-2399c",
+    "storage_bucket": "gogo-2399c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:21463273294:android:3ea41d04c9182f1a",
+        "android_client_info": {
+          "package_name": "cs486.nmnhut.gogo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "21463273294-h7dgm2aqravh3ovk55ajrocmvltg9pnc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "cs486.nmnhut.gogo",
+            "certificate_hash": "b22c0b1d02c4eeb196c9d56a06c49832f6172c5b"
+          }
+        },
+        {
+          "client_id": "21463273294-d2bu6fk7bta6dalfakbghf9ar15c764c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuuZmOWJ3FqrUstJ6gaX16PWdmmaEMP50"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "21463273294-d2bu6fk7bta6dalfakbghf9ar15c764c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
