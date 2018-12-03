@@ -144,6 +144,7 @@ public class trips extends AppCompatActivity {
 
                     activities.get(click_position).place = place.getAddress().toString();
                     adapter = new FragmentPlanListAdapter(activities);
+                    btnSaveChange.setVisibility(View.VISIBLE);
                     listViewActivity.setAdapter(adapter);
                 }
             }
@@ -302,22 +303,7 @@ public class trips extends AppCompatActivity {
         public class FragmentPlanListAdapter extends RecyclerView.Adapter<PlanItem> {
             ArrayList<TripActivity> list;
 
-            private final TextWatcher enableChangeButton = new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-                    btnSaveChange.setVisibility(View.VISIBLE);
-                }
-            };
 
             public FragmentPlanListAdapter(ArrayList<TripActivity> list) {
                 this.list = list;
@@ -368,8 +354,8 @@ public class trips extends AppCompatActivity {
                         click_position = position;
                     }
                 });
-                txtEndTime.addTextChangedListener(enableChangeButton);
-                txtStartTime.addTextChangedListener(enableChangeButton);
+                //txtEndTime.addTextChangedListener(enableChangeButton);
+                // txtStartTime.addTextChangedListener(enableChangeButton);
 
                 btnDeleteThisActivity.setFocusable(false);
                 toggleBtnNotificationOnOff.setFocusable(false);

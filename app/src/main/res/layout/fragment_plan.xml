@@ -28,6 +28,7 @@
         android:background="@drawable/round_button"
         android:enabled="true"
         android:text="Save changes"
+        android:visibility="invisible"
         android:textAllCaps="false"
         android:textColor="#FFF"
         app:layout_constraintRight_toLeftOf="@id/btnSaveChanges"
