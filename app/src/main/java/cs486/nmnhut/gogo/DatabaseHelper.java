@@ -102,7 +102,7 @@ public class DatabaseHelper {
     }
 
     public static void InviteMember(final String message, final String Inviter, final String TripID, final String HostID, String name) {
-        if (currentUserID() == HostID) {
+        if (currentUserID().equals(HostID)) {
             FirebaseDatabase db = FirebaseDatabase.getInstance();
             DatabaseReference ref = db.getReference("user");
             ref.orderByKey().startAt("Name", name).addListenerForSingleValueEvent(new ValueEventListener() {

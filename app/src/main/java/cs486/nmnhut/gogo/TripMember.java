@@ -27,7 +27,8 @@ class TripMember {
         ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                position = dataSnapshot.getValue(ToaDo.class);
+                if (dataSnapshot.exists())
+                    position = dataSnapshot.getValue(ToaDo.class);
             }
 
             @Override

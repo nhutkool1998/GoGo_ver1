@@ -136,6 +136,8 @@ public class TripListActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(TripListActivity.this, trips.class);
                 intent.putExtra("TripID", l.get(position).TripID);
+                String hostID = myTrips.get(l.get(position).TripID).getHostID();
+                intent.putExtra("HostID", hostID);
                 startActivity(intent);
             }
         });
@@ -191,6 +193,8 @@ public class TripListActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     Intent intent = new Intent(TripListActivity.this, trips.class);
                     intent.putExtra("TripID", temp.TripID);
+                    String hostID = myTrips.get(list.get(position).TripID).getHostID();
+                    intent.putExtra("HostID", hostID);
                     startActivity(intent);
                 }
             });

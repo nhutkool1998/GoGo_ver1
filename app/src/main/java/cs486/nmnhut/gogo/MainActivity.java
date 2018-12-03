@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-//        DatabaseHelper.SampleTrip();
+        DatabaseHelper.SampleTrip();
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -112,8 +112,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        notificationList.setLayoutManager(linearLayoutManager);
-        notificationList.setAdapter(notificationAdapter);
+        //notificationList.setLayoutManager(linearLayoutManager);
+        //notificationList.setAdapter(notificationAdapter);
     }
 
     private void setSampleData() {
