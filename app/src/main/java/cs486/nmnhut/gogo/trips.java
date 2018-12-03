@@ -133,9 +133,10 @@ public class trips extends AppCompatActivity {
                     FirebaseDatabase db = FirebaseDatabase.getInstance();
                     DatabaseReference ref = db.getReference("trip/" + TripID + "/plan/activities");
                     ref.setValue(activities);
+                    v.setVisibility(View.INVISIBLE);
                 }
             });
-
+            btnSaveChange.setVisibility(View.INVISIBLE);
             btnNewTripActivity.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -144,11 +145,14 @@ public class trips extends AppCompatActivity {
                     tripActivity.place = "";
                     tripActivity.startDate = "";
                     tripActivity.endDate = "";
+                    btnSaveChange.setVisibility(View.VISIBLE);
                     activities.add(tripActivity);
-                    adapter.notifyItemInserted(activities.size() - 1);
+                    adapter.notifyDataSetChanged();
                     FirebaseDatabase db = FirebaseDatabase.getInstance();
                     DatabaseReference ref = db.getReference("trip/" + TripID + "/plan/activities");
                     ref.setValue(activities);
+
+
                 }
             });
 
@@ -251,7 +255,7 @@ public class trips extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    btnSaveChange.setEnabled(true);
+                    btnSaveChange.setVisibility(View.VISIBLE);
                 }
             };
 
@@ -333,7 +337,7 @@ public class trips extends AppCompatActivity {
                                 FirebaseDatabase db = FirebaseDatabase.getInstance();
                                 DatabaseReference ref = db.getReference("trip/" + TripID + "/plan/activities");
                                 ref.setValue(activities);
-                                adapter.notifyItemRemoved(position);
+                                adapter.notifyDataSetChanged();
                                 Toast t = Toast.makeText(FragmentPlan.this.getContext(), "Activity deleted", Toast.LENGTH_SHORT);
                                 t.show();
                             }

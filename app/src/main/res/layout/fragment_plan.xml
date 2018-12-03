@@ -26,7 +26,7 @@
         android:layout_height="30dp"
         android:layout_margin="18dp"
         android:background="@drawable/round_button"
-        android:enabled="false"
+        android:enabled="true"
         android:text="Save changes"
         android:textAllCaps="false"
         android:textColor="#FFF"
