@@ -12,92 +12,99 @@
         card_view:cardElevation="2dp"
         card_view:cardCornerRadius="@dimen/card_radius"
         card_view:cardBackgroundColor="@color/colorCardActivity"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+
         >
+
         <GridLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
             android:columnCount="2"
             android:paddingStart="4dp"
-            android:layout_marginEnd="4dp"
             android:paddingEnd="4dp"
-            android:rowCount="4"
-           >
+            android:rowCount="4">
+
             <TextView
+                android:id="@+id/lbPlacetxtPlace"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:labelFor="@id/txtPlace"
                 android:text="Place: "
-                android:textSize="20sp"
-                card_view:layout_constraintLeft_toLeftOf="parent"
-                card_view:layout_constraintTop_toTopOf="parent"
-                android:id="@+id/lbPlacetxtPlace"
-                android:labelFor="@id/txtPlace"/>
+                android:textSize="20sp" />
+
             <EditText
                 android:id="@+id/txtPlace"
-                android:textSize="20sp"
-                android:text="Museum"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+
                 android:layout_height="wrap_content"
-                card_view:layout_constraintLeft_toRightOf="@id/lbPlacetxtPlace"
-                card_view:layout_constraintRight_toRightOf="parent"
-                android:drawableEnd="@drawable/icon_search"/>
+                android:layout_gravity="fill_horizontal"
+                android:drawableRight="@drawable/icon_search"
+                android:drawablePadding="10dp"
+                android:text="Museum"
+                android:textSize="20sp" />
+
             <TextView
+                android:id="@+id/lbTimeStart"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:labelFor="@id/txtPlace"
                 android:text="Time start: "
                 android:textSize="20sp"
                 card_view:layout_constraintLeft_toLeftOf="parent"
-                card_view:layout_constraintTop_toTopOf="parent"
-                android:id="@+id/lbTimeStart"
-                android:labelFor="@id/txtPlace"/>
+                card_view:layout_constraintTop_toTopOf="parent" />
+
             <EditText
                 android:id="@+id/txtTimeStart"
-                android:textSize="20sp"
-                android:text="07:00 AM"
-                android:inputType="datetime"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+
                 android:layout_height="wrap_content"
-                />
+                android:layout_gravity="fill_horizontal"
+                android:inputType="datetime"
+                android:text="07:00 AM"
+                android:textSize="20sp" />
 
             <TextView
+                android:id="@+id/lbTimeEnd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:labelFor="@id/txtPlace"
                 android:text="Time end: "
                 android:textSize="20sp"
                 card_view:layout_constraintLeft_toLeftOf="parent"
-                card_view:layout_constraintTop_toTopOf="parent"
-                android:id="@+id/lbTimeEnd"
-                android:labelFor="@id/txtPlace"/>
+                card_view:layout_constraintTop_toTopOf="parent" />
+
             <EditText
                 android:id="@+id/txtTimeEnd"
-                android:textSize="20sp"
-                android:text="10:00 AM"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+
                 android:layout_height="wrap_content"
-               />
+                android:layout_gravity="fill_horizontal"
+                android:text="10:00 AM"
+                android:textSize="20sp" />
+
             <android.support.constraint.ConstraintLayout
-                android:layout_columnSpan="2"
                 android:layout_width="match_parent"
+                android:layout_columnSpan="2"
                 android:layout_marginBottom="8dp">
-               <ToggleButton
-                   android:layout_width="40dp"
-                   android:layout_height="40dp"
-                   android:background="@drawable/icon_notification_on"
-                   android:layout_marginEnd="16dp"
-                   card_view:layout_constraintRight_toLeftOf="@id/btnDeleteThisActivity"
-                   android:id="@+id/toggleBtnNotification"
-                   android:textColor="#FFF"/>
-                <ImageButton
+
+                <ToggleButton
+                    android:id="@+id/toggleBtnNotification"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:layout_marginEnd="16dp"
+                    android:background="@drawable/icon_notification_on"
+                    android:textColor="#FFF"
+                    card_view:layout_constraintRight_toLeftOf="@id/btnDeleteThisActivity" />
+
+                <ImageButton
                     android:id="@+id/btnDeleteThisActivity"
-                    card_view:layout_constraintRight_toRightOf="parent"
-                    android:background="@drawable/icon_delete"
-                    android:src="@drawable/icon_delete"
-                    android:scaleType="fitCenter"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:layout_marginBottom="8dp"
-                    />
+                    android:background="@drawable/icon_delete"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/icon_delete"
+                    card_view:layout_constraintRight_toRightOf="parent" />
             </android.support.constraint.ConstraintLayout>
         </GridLayout>
 

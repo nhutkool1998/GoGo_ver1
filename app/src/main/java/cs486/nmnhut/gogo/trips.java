@@ -1,5 +1,6 @@
 package cs486.nmnhut.gogo;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -81,7 +83,6 @@ public class trips extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
-
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -129,8 +130,24 @@ public class trips extends AppCompatActivity {
         ArrayList<TripActivity> activities;
         FragmentPlanListAdapter adapter;
         LinearLayoutManager linearLayoutManager;
-
+        int click_position;
         Button btnSaveChange, btnNewTripActivity;
+        int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
+
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+            if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+                if (resultCode == Activity.RESULT_OK) {
+                    Place place = PlaceAutocomplete.getPlace(getActivity(), data);
+                   /* adapter.list.get(click_position).place = place.getAddress().toString();
+                    adapter.notifyDataSetChanged();*/
+
+                    activities.get(click_position).place = place.getAddress().toString();
+                    adapter = new FragmentPlanListAdapter(activities);
+                    listViewActivity.setAdapter(adapter);
+                }
+            }
+        }
 
         public FragmentPlan() {
 
@@ -168,14 +185,15 @@ public class trips extends AppCompatActivity {
             FirebaseDatabase db = FirebaseDatabase.getInstance();
 
             DatabaseReference ref = db.getReference("trip/" + TripID + "/plan");
-            ref.child("activities").addValueEventListener(new ValueEventListener() {
+            ref.child("activities").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     GenericTypeIndicator<ArrayList<TripActivity>> t = new GenericTypeIndicator<ArrayList<TripActivity>>() {
                     };
                     if (dataSnapshot.exists()) {
                         activities = dataSnapshot.getValue(t);
-                        adapter.notifyDataSetChanged();
+                        adapter = new FragmentPlanListAdapter(activities);
+                        listViewActivity.setAdapter(adapter);
 
                     }
                 }
@@ -221,7 +239,7 @@ public class trips extends AppCompatActivity {
                     FirebaseDatabase db = FirebaseDatabase.getInstance();
                     DatabaseReference ref = db.getReference("trip/" + TripID + "/plan/activities");
                     ref.setValue(activities);
-                    v.setVisibility(View.INVISIBLE);
+                    btnSaveChange.setVisibility(View.INVISIBLE);
                 }
             });
         }
@@ -326,31 +344,28 @@ public class trips extends AppCompatActivity {
                 onDeleteActivityClick(position, btnDeleteThisActivity);
 
                 onToggleNotificationClick(position, toggleBtnNotificationOnOff);
-                if (HostID.equals(currentUserID())) {
+                if (!HostID.equals(currentUserID())) {
                     txtPlace.setEnabled(false);
+                    //
                     txtEndTime.setEnabled(false);
                     txtStartTime.setEnabled(false);
                     btnDeleteThisActivity.setVisibility(View.INVISIBLE);
                 }
+                txtPlace.setInputType(InputType.TYPE_NULL);
                 txtPlace.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        SupportPlaceAutocompleteFragment autocompleteFragment = (SupportPlaceAutocompleteFragment)
-                                getChildFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
-
-                        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-                            @Override
-                            public void onPlaceSelected(Place place) {
-                                // TODO: Get info about the selected place.
-
-                            }
-
-                            @Override
-                            public void onError(Status status) {
-                                // TODO: Handle the error.
-
-                            }
-                        });
+                        try {
+                            Intent intent =
+                                    new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
+                                            .build(getActivity());
+                            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+                        } catch (GooglePlayServicesRepairableException e) {
+                            // TODO: Handle the error.
+                        } catch (GooglePlayServicesNotAvailableException e) {
+                            // TODO: Handle the error.
+                        }
+                        click_position = position;
                     }
                 });
                 txtEndTime.addTextChangedListener(enableChangeButton);
@@ -392,7 +407,6 @@ public class trips extends AppCompatActivity {
                 btnDeleteThisActivity.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
                         AlertDialog.Builder builder = new AlertDialog.Builder(FragmentPlan.this.getContext());
                         builder.setTitle("Confirm delete");
                         builder.setMessage("Are you sure to delete?");
