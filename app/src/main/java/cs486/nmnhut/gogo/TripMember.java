@@ -2,25 +2,24 @@ package cs486.nmnhut.gogo;
 
 import android.support.annotation.NonNull;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-class TripMember {
-    String ID;
-    String Name;
-    boolean Alarm;
+public class TripMember {
+    String name;
+    boolean alarm;
     ToaDo position;
 
     TripMember() {
-
+        name = "";
+        alarm = false;
+        position = new ToaDo();
     }
 
     TripMember(String ID) {
-        this.ID = ID;
         position = new ToaDo();
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         DatabaseReference ref = db.getReference("position/" + ID);
@@ -38,16 +37,13 @@ class TripMember {
         });
     }
 
-    public String getID() {
-        return ID;
-    }
 
-    public void setID(String ID) {
-        this.ID = ID;
+    public void setId(String id) {
+
         position = new ToaDo();
         FirebaseDatabase db = FirebaseDatabase.getInstance();
-        DatabaseReference ref = db.getReference("position/" + ID);
-        ref.addValueEventListener(new ValueEventListener() {
+        DatabaseReference ref = db.getReference("position/" + id);
+        /*ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 position = dataSnapshot.getValue(ToaDo.class);
@@ -57,39 +53,44 @@ class TripMember {
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
+        });*/
     }
 
     public String getName() {
-        return Name;
+        return name;
     }
 
     public boolean isAlarm() {
-        return Alarm;
+        return alarm;
     }
 
-    private class ToaDo {
-        float Lat;
-        float Lng;
+    public static class ToaDo {
+        float lat;
+        float lng;
 
         ToaDo() {
-
+            lat = 0;
+            lng = 0;
         }
 
         public float getLat() {
-            return Lat;
+            return lat;
         }
 
         public void setLat(float lat) {
-            Lat = lat;
+            this.lat = lat;
         }
 
         public float getLng() {
-            return Lng;
+            return lng;
         }
 
         public void setLng(float lng) {
-            Lng = lng;
+            this.lng = lng;
+        }
+
+        public double Distance(ToaDo t) {
+            return Math.sqrt((t.lat - this.lat) * (t.lat - this.lat) + (t.lng - this.lng) * (t.lng - this.lng));
         }
     }
 }

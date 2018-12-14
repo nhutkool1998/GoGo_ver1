@@ -1,5 +1,6 @@
 package cs486.nmnhut.gogo;
 
+import android.app.Notification;
 import android.support.annotation.NonNull;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -10,21 +11,27 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class DatabaseHelper {
     static FirebaseDatabase db;
     static int count = 0;
+    static int finishedUserList = 0;
+    static HashMap<String, String> res = new HashMap<>();
 
     DatabaseHelper() {
         if (count == 0)
             db = FirebaseDatabase.getInstance();
+        count++;
     }
 
-    public static void AcceptInvitation(mNotification invitation, String UserID) {
+    public static void AcceptInvitation(mNotification invitation, String notificationID) {
         //TODO: implement acitivity invitation
+        AddMember(invitation.getTripID(), FirebaseAuth.getInstance().getCurrentUser().getEmail());
+
     }
 
-    public static void DeclineInvitation(mNotification invitation, String userID) {
+    public static void DeclineInvitation(mNotification invitation, String notificationID) {
         //TODO: implement acitivity invitation
     }
 
@@ -44,86 +51,63 @@ public class DatabaseHelper {
         myTrip.tripDescription = "tripDescription";
         myTrip.hostName = FirebaseAuth.getInstance().getCurrentUser().getEmail();
 
-
         tripActivities.add(tripActivity);
         tripPlan.activities = tripActivities;
         myTrip.plan = tripPlan;
+        HashMap<String, TripMember> m = new HashMap<>();
+        int i = 0;
 
-        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        for (String k : res.keySet()) {
+            TripMember tripMember = new TripMember();
+
+            tripMember.position = new TripMember.ToaDo();
+            tripMember.setId(k);
+            tripMember.position.setLat(80 + i);
+            tripMember.position.setLng(80 + i);
+            tripMember.name = res.get(k);
+            ++i;
+            m.put(k, tripMember);
+        }
+        myTrip.members = m;
         DatabaseReference ref = db.getReference("trip");
         DatabaseReference r = ref.push();
         r.setValue(myTrip);
 
         DatabaseReference ref2 = db.getReference("user/" + currentUserID() + "/trip");
         ref2.child(r.getKey()).setValue(true);
+
+        DatabaseReference ref3 = db.getReference();
+        ref3.child("position").child(currentUserID()).child("lat").setValue("100");
+        ref3.child("position").child(currentUserID()).child("lng").setValue("100");
+
     }
 
-    public static void turnNotificationAt(String time, boolean isOn) {
 
-    }
     public static void RemoveMember(final String TripID, String MemberName) {
-        FirebaseDatabase db = FirebaseDatabase.getInstance();
-        DatabaseReference ref = db.getReference("user");
-        ref.orderByChild("Name").startAt(MemberName).limitToFirst(1).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    FirebaseDatabase db = FirebaseDatabase.getInstance();
-                    DatabaseReference ref = db.getReference("trip/" + TripID + "member");
-                    ref.child(dataSnapshot.getKey()).removeValue();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+        String UID = res.get(MemberName);
+        if (UID != null) {
+            FirebaseDatabase db = FirebaseDatabase.getInstance();
+            DatabaseReference ref = db.getReference("trip/" + TripID + "members");
+            ref.child(UID).removeValue();
+        }
     }
 
     public static void AddMember(final String TripID, String MemberName) {
-        FirebaseDatabase db = FirebaseDatabase.getInstance();
-        DatabaseReference ref = db.getReference("user");
-        ref.orderByChild("Name").startAt(MemberName).limitToFirst(1).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    FirebaseDatabase db = FirebaseDatabase.getInstance();
-                    DatabaseReference ref = db.getReference("trip/" + TripID + "/member");
-                    ref.child(dataSnapshot.getKey()).setValue(true);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+        String UID = res.get(MemberName);
+        if (UID != null) {
+            DatabaseReference ref = db.getReference("trip/" + TripID + "/members");
+            TripMember t = new TripMember();
+            t.name = MemberName;
+            ref.child(UID).setValue(t);
+        }
     }
 
     public static void InviteMember(final String message, final String Inviter, final String TripID, final String HostID, String name) {
         if (currentUserID().equals(HostID)) {
-            FirebaseDatabase db = FirebaseDatabase.getInstance();
-            DatabaseReference ref = db.getReference("user");
-            ref.orderByKey().startAt("Name", name).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.exists()) {
-                        FirebaseDatabase db = FirebaseDatabase.getInstance();
-                        DatabaseReference ref = db.getReference("notification/" + dataSnapshot.getKey());
-                        mNotification notif = new mNotification(message, Inviter, mNotification.TRIP_INVITATION, TripID);
-                        ref.push().setValue(notif);
-                    } else
-                        showFailToInviteMessage();
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    showFailToInviteMessage();
-                }
-            });
+            DatabaseReference ref = db.getReference("notif");
+            mNotification notification = new mNotification(message, Inviter, mNotification.TRIP_INVITATION, TripID);
+            ref.child(currentUserID()).push().setValue(notification);
         }
-
     }
 
     private static void showFailToInviteMessage() {
@@ -142,6 +126,28 @@ public class DatabaseHelper {
     public static String currentUserID() {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         return mAuth.getCurrentUser().getUid();
+    }
+
+    public static void getUserMap() {
+        res.put(currentUserID(), "nmnhut@apcs.vn");
+        if (finishedUserList == 1)
+            return;
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference ref = db.getReference("userlist");
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    res = (HashMap<String, String>) dataSnapshot.getValue();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        finishedUserList = 1;
     }
 
 

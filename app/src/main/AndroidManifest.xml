@@ -19,11 +19,9 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
-
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
-            android:name=".trips"
+            android:name=".TripDescriptionActivity"
             android:label="@string/title_activity_trips"
             android:parentActivityName=".TripListActivity"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -44,6 +42,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBW451Z4by0fT7q9Hnt0dT-_Dp8vckjzgg" />
 
+        <activity android:name=".AlarmActivity"></activity>
     </application>
 
 </manifest>

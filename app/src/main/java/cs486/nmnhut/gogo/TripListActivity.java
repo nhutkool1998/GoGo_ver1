@@ -19,6 +19,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -81,8 +83,10 @@ public class TripListActivity extends AppCompatActivity {
         final ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) { //get value
-                myTrips.put(dataSnapshot.getKey(), dataSnapshot.getValue(MyTrip.class));
-                refreshList();
+                if (dataSnapshot.exists()) {
+                    myTrips.put(dataSnapshot.getKey(), dataSnapshot.getValue(MyTrip.class));
+                    refreshList();
+                }
             }
 
             @Override
@@ -126,15 +130,16 @@ public class TripListActivity extends AppCompatActivity {
 
     private void refreshList() {
         l = new ArrayList<>();
-        for (String s : myTrips.keySet()) {
-            MyTrip temp = myTrips.get(s);
-            l.add(new TripItem(temp.tripDescription, s));
-        }
+        if (!myTrips.keySet().isEmpty())
+            for (String s : myTrips.keySet()) {
+                MyTrip temp = myTrips.get(s);
+                l.add(new TripItem(temp.tripDescription, s));
+            }
         TripListView.setAdapter(new TripListAdapter(l, this));
         TripListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(TripListActivity.this, trips.class);
+                Intent intent = new Intent(TripListActivity.this, TripDescriptionActivity.class);
                 intent.putExtra("TripID", l.get(position).TripID);
                 String hostID = myTrips.get(l.get(position).TripID).getHostID();
                 intent.putExtra("HostID", hostID);
@@ -184,14 +189,34 @@ public class TripListActivity extends AppCompatActivity {
             viewHolder.btnRemove.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    DatabaseHelper.RemoveTrip(temp.TripID);
+                    FirebaseDatabase db = FirebaseDatabase.getInstance();
+                    DatabaseReference ref = db.getReference("trip");
+                    try {
+                        ref.child(temp.TripID).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    myTrips.remove(temp.TripID);
+                                    refreshList();
+                                    Toast t = Toast.makeText(TripListActivity.this, "Trip deleted", Toast.LENGTH_SHORT);
+                                    t.show();
+                                } else {
+                                    Toast t = Toast.makeText(TripListActivity.this, "Trip deleting error", Toast.LENGTH_SHORT);
+                                    t.show();
+                                }
+                            }
+                        });
+                    } catch (Exception ex) {
+
+                    }
+
                 }
             });
             viewHolder.btnRemove.setFocusable(false);
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(TripListActivity.this, trips.class);
+                    Intent intent = new Intent(TripListActivity.this, TripDescriptionActivity.class);
                     intent.putExtra("TripID", temp.TripID);
                     String hostID = myTrips.get(list.get(position).TripID).getHostID();
                     intent.putExtra("HostID", hostID);

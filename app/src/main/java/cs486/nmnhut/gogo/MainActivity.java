@@ -1,15 +1,12 @@
 package cs486.nmnhut.gogo;
 
 import android.Manifest;
-import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -33,28 +30,31 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
+    static ArrayList<String> mNotificationIDs = null;
     final int NetworkPermission = 100;
     final int LocationPermission = 101;
     LinearLayoutManager linearLayoutManager = null;
     static ArrayList<mNotification> mNotificationArrayList = null;
     NotificationAdapter notificationAdapter = null;
-    RecyclerView notificationList;
-    FirebaseDatabase db;
     private final ChildEventListener childEventListener = new ChildEventListener() {
         @Override
         public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
             mNotification newNotification = dataSnapshot.getValue(mNotification.class);
             //   mNotificationArrayList.add(newNotification);
             notificationAdapter.add(newNotification);
-        }
+            if (mNotificationIDs == null)
+                mNotificationIDs = new ArrayList<>();
+            mNotificationIDs.add(s);
 
+        }
         @Override
         public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
@@ -62,7 +62,9 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
+            mNotification newNotification = dataSnapshot.getValue(mNotification.class);
+            mNotificationArrayList.remove(mNotificationIDs.indexOf(dataSnapshot.getKey()));
+            mNotificationIDs.remove(dataSnapshot.getKey());
         }
 
         @Override
@@ -75,6 +77,9 @@ public class MainActivity extends AppCompatActivity
 
         }
     };
+    RecyclerView notificationList;
+    FirebaseDatabase db;
+    long notificationCount = 0;
     String UID;//   mNotificationArrayList.add(newNotification);
 
     @Override
@@ -128,14 +133,13 @@ public class MainActivity extends AppCompatActivity
     private void checkPermissions_and_Initialize() {
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.INTERNET)
                 != PackageManager.PERMISSION_GRANTED) {
-            Toast t = Toast.makeText(this,"Permission Not granted",Toast.LENGTH_SHORT);
+            Toast t = Toast.makeText(this, "Permission not granted", Toast.LENGTH_SHORT);
             t.show();
             requestPermissions(new String[] {Manifest.permission.INTERNET},NetworkPermission);
         }
         else
         {
-            Toast t = Toast.makeText(this,"Granted",Toast.LENGTH_SHORT);
-            t.show();
+
             initialize();
         }
     }
@@ -178,23 +182,18 @@ public class MainActivity extends AppCompatActivity
         db = FirebaseDatabase.getInstance();
         UID = this.getIntent().getStringExtra("UID");
         DatabaseReference ref = db.getReference("notif/"+UID);
-        //writeSampleData();
-        /*ref.addListenerForSingleValueEvent(new ValueEventListener() {
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                GenericTypeIndicator<ArrayList<mNotification>> t = new GenericTypeIndicator<ArrayList<mNotification>>() {
-                };
-                mNotificationArrayList = dataSnapshot.getValue(t);
-                notificationList.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-
-                notificationList.setAdapter(notificationAdapter);
+                notificationCount = dataSnapshot.getChildrenCount();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });*/
+        });
+
         ref.addChildEventListener(childEventListener);
 
 
@@ -324,7 +323,6 @@ public class MainActivity extends AppCompatActivity
                     viewHolder = new ViewHolder_invitation(v);
                     break;
 
-
                 default:
                     View v2 = inflater.inflate(R.layout.list_new_trip, viewGroup, false);
                     viewHolder = new ViewHolder_new_trip(v2);
@@ -367,7 +365,8 @@ public class MainActivity extends AppCompatActivity
             btnAccept.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    DatabaseHelper.AcceptInvitation(list.get(position), DatabaseHelper.currentUserID());
+                    mNotification n = list.get(position);
+                    DatabaseHelper.AcceptInvitation(list.get(position), mNotificationIDs.get(position));
                 }
             });
 
@@ -375,7 +374,8 @@ public class MainActivity extends AppCompatActivity
             btnDecline.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    DatabaseHelper.DeclineInvitation(list.get(position), DatabaseHelper.currentUserID());
+                    mNotification n = list.get(position);
+                    DatabaseHelper.DeclineInvitation(list.get(position), mNotificationIDs.get(position));
                 }
             });
             btnAccept.setFocusable(false);

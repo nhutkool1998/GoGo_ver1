@@ -3,21 +3,37 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Member">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".TripDescriptionActivity">
 
-    <com.google.android.gms.maps.MapView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:id="@+id/map"
-        android:layout_height="match_parent" />
-    <Spinner
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_margin="16dp"
-        android:layout_marginTop="4dp"
-        android:background="@drawable/round_button_less"
-        android:padding="4dp"
-        android:drawableEnd="@drawable/icon_search"
-        android:backgroundTint="@color/colorCardActivity"
-        android:prompt="@string/enter_a_name_here_to_invite_or_remove"/>
+        android:layout_height="match_parent">
+
+        <com.google.android.gms.maps.MapView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:focusable="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/spinnerMember" />
+
+        <Spinner
+            android:id="@+id/spinnerMember"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_margin="8dp"
+            android:background="@drawable/round_button_less"
+            android:backgroundTint="@color/colorCardActivity"
+            android:drawableEnd="@drawable/icon_search"
+            android:padding="4dp"
+            android:prompt="@string/enter_a_name_here_to_invite_or_remove"
+            app:layout_constraintBottom_toTopOf="@id/map"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </android.support.constraint.ConstraintLayout>
+
+
 </FrameLayout>

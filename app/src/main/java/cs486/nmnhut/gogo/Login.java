@@ -18,8 +18,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserInfo;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
 
 public class Login extends AppCompatActivity {
 
@@ -92,7 +95,7 @@ public class Login extends AppCompatActivity {
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username = txtUsername.getText().toString();
+                final String username = txtUsername.getText().toString();
                 String password = txtPassword.getText().toString();
                 mAuth.createUserWithEmailAndPassword(username,password).addOnCompleteListener(Login.this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -120,8 +123,9 @@ public class Login extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username = txtUsername.getText().toString();
+                final String username = txtUsername.getText().toString();
                 String password = txtPassword.getText().toString();
+                btnLogin.setEnabled(false);
                 mAuth.signInWithEmailAndPassword(username,password).addOnCompleteListener( new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -130,15 +134,21 @@ public class Login extends AppCompatActivity {
                             Toast t =  Toast.makeText(Login.this,"Login successfully!",Toast.LENGTH_SHORT);
                             t.show();
                             Intent intent = new Intent(Login.this,MainActivity.class);
-
+                            btnLogin.setEnabled(true);
+                            FirebaseDatabase db = FirebaseDatabase.getInstance();
+                            DatabaseReference ref = db.getReference();
                             String UID = mAuth.getCurrentUser().getUid();
+                            ref.child("userlist").child(UID).setValue(username);
+                            DatabaseHelper databaseHelper = new DatabaseHelper();
+                            DatabaseHelper.getUserMap();
                             intent.putExtra("UID",UID);
                             startActivity(intent);
+                            btnLogin.setEnabled(true);
                             finish();
-
                         }
                         else
                         {
+                            btnLogin.setEnabled(true);
                             Toast t =  Toast.makeText(Login.this,"Login failed!",Toast.LENGTH_SHORT);
                             t.show();
                         }

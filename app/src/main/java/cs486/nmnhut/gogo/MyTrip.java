@@ -4,12 +4,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 class MyTrip {
     String tripDescription;
     String hostID;
     String hostName;
-    ArrayList<TripMember> members;
+    HashMap<String, TripMember> members;
     TripPlan plan;
 
     MyTrip() {
@@ -33,7 +34,7 @@ class MyTrip {
         return hostName;
     }
 
-    public ArrayList<TripMember> getMembers() {
+    public HashMap<String, TripMember> getMembers() {
         return members;
     }
 

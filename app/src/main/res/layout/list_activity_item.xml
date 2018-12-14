@@ -35,7 +35,6 @@
             <EditText
                 android:id="@+id/txtPlace"
                 android:layout_width="0dp"
-
                 android:layout_height="wrap_content"
                 android:layout_gravity="fill_horizontal"
                 android:drawableRight="@drawable/icon_search"
@@ -56,10 +55,8 @@
             <EditText
                 android:id="@+id/txtTimeStart"
                 android:layout_width="0dp"
-
                 android:layout_height="wrap_content"
                 android:layout_gravity="fill_horizontal"
-                android:inputType="datetime"
                 android:text="07:00 AM"
                 android:textSize="20sp" />
 
@@ -76,7 +73,6 @@
             <EditText
                 android:id="@+id/txtTimeEnd"
                 android:layout_width="0dp"
-
                 android:layout_height="wrap_content"
                 android:layout_gravity="fill_horizontal"
                 android:text="10:00 AM"
