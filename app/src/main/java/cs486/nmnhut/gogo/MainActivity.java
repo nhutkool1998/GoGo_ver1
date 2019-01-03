@@ -42,8 +42,7 @@ public class MainActivity extends AppCompatActivity
     final int NetworkPermission = 100;
     final int LocationPermission = 101;
     LinearLayoutManager linearLayoutManager = null;
-    static ArrayList<mNotification> mNotificationArrayList = null;
-    NotificationAdapter notificationAdapter = null;
+    //    final mNotification viewCurrentTrips =  new mNotification()
     private final ChildEventListener childEventListener = new ChildEventListener() {
         @Override
         public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -52,7 +51,7 @@ public class MainActivity extends AppCompatActivity
             notificationAdapter.add(newNotification);
             if (mNotificationIDs == null)
                 mNotificationIDs = new ArrayList<>();
-            mNotificationIDs.add(s);
+            mNotificationIDs.add(dataSnapshot.getKey());
 
         }
         @Override
@@ -63,8 +62,11 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
             mNotification newNotification = dataSnapshot.getValue(mNotification.class);
-            mNotificationArrayList.remove(mNotificationIDs.indexOf(dataSnapshot.getKey()));
-            mNotificationIDs.remove(dataSnapshot.getKey());
+            int position = mNotificationIDs.indexOf(dataSnapshot.getKey());
+            mNotificationArrayList.remove(position);
+            mNotificationIDs.remove(position);
+            notificationAdapter.remove(position);
+
         }
 
         @Override
@@ -77,6 +79,9 @@ public class MainActivity extends AppCompatActivity
 
         }
     };
+    static ArrayList<mNotification> mNotificationArrayList = null;
+    NotificationAdapter notificationAdapter = null;
+    GeolocationHelper geolocationHelper;
     RecyclerView notificationList;
     FirebaseDatabase db;
     long notificationCount = 0;
@@ -92,7 +97,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        DatabaseHelper.SampleTrip();
+        // DatabaseHelper.SampleTrip();
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -178,7 +183,8 @@ public class MainActivity extends AppCompatActivity
         notificationList.setLayoutManager(linearLayoutManager);
         notificationList.setAdapter(notificationAdapter);
         // notificationAdapter.notifyDataSetChanged();
-
+        geolocationHelper = new GeolocationHelper(this, DatabaseHelper.currentUserID());
+        geolocationHelper.requestLocationUpdate();
         db = FirebaseDatabase.getInstance();
         UID = this.getIntent().getStringExtra("UID");
         DatabaseReference ref = db.getReference("notif/"+UID);
@@ -248,6 +254,7 @@ public class MainActivity extends AppCompatActivity
             LaunchCurrentTrips();
 
         } else if (id == R.id.nav_logout) {
+            geolocationHelper.stopLoacationUpdates();
             LogOut();
 
 
@@ -367,6 +374,10 @@ public class MainActivity extends AppCompatActivity
                 public void onClick(View v) {
                     mNotification n = list.get(position);
                     DatabaseHelper.AcceptInvitation(list.get(position), mNotificationIDs.get(position));
+                    Toast t = Toast.makeText(MainActivity.this, "Accepted", Toast.LENGTH_SHORT);
+
+
+                    t.show();
                 }
             });
 
@@ -434,6 +445,11 @@ public class MainActivity extends AppCompatActivity
         void update(ArrayList<mNotification> list) {
             this.list = list;
             notifyDataSetChanged();
+        }
+
+        void remove(int index) {
+            list.remove(index);
+            notifyItemRemoved(index);
         }
     }
 }

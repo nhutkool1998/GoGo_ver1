@@ -1,5 +1,6 @@
 package cs486.nmnhut.gogo;
 
+import android.location.Location;
 import android.support.annotation.NonNull;
 
 import com.google.firebase.database.DataSnapshot;
@@ -65,15 +66,15 @@ public class TripMember {
     }
 
     public static class ToaDo {
-        float lat;
-        float lng;
+        double lat;
+        double lng;
 
         ToaDo() {
             lat = 0;
             lng = 0;
         }
 
-        public float getLat() {
+        public double getLat() {
             return lat;
         }
 
@@ -81,7 +82,7 @@ public class TripMember {
             this.lat = lat;
         }
 
-        public float getLng() {
+        public double getLng() {
             return lng;
         }
 
@@ -90,7 +91,9 @@ public class TripMember {
         }
 
         public double Distance(ToaDo t) {
-            return Math.sqrt((t.lat - this.lat) * (t.lat - this.lat) + (t.lng - this.lng) * (t.lng - this.lng));
+            float[] res = new float[1];
+            Location.distanceBetween(t.lat, t.lng, this.lat, this.lng, res);
+            return res[0];
         }
     }
 }

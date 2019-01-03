@@ -1,6 +1,7 @@
 package cs486.nmnhut.gogo;
 
 import android.app.Notification;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,11 +29,18 @@ public class DatabaseHelper {
     public static void AcceptInvitation(mNotification invitation, String notificationID) {
         //TODO: implement acitivity invitation
         AddMember(invitation.getTripID(), FirebaseAuth.getInstance().getCurrentUser().getEmail());
-
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference ref = db.getReference("user/" + currentUserID() + "/trip");
+        ref.child(invitation.getTripID()).setValue(true);
+        DatabaseReference ref2 = db.getReference("notif/" + currentUserID());
+        ref2.child(notificationID).removeValue();
     }
 
     public static void DeclineInvitation(mNotification invitation, String notificationID) {
         //TODO: implement acitivity invitation
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference ref2 = db.getReference("notif/" + currentUserID() + "/" + notificationID);
+        ref2.removeValue();
     }
 
     public static void SampleTrip() {
@@ -102,12 +110,21 @@ public class DatabaseHelper {
         }
     }
 
-    public static void InviteMember(final String message, final String Inviter, final String TripID, final String HostID, String name) {
+    public static int InviteMember(final String message, final String TripID, final String HostID, String name) {
+        String Inviter = getUserEmail();
+        if (!res.containsKey(name))
+            return -1;
+        String id_p = res.get(name);
         if (currentUserID().equals(HostID)) {
             DatabaseReference ref = db.getReference("notif");
             mNotification notification = new mNotification(message, Inviter, mNotification.TRIP_INVITATION, TripID);
-            ref.child(currentUserID()).push().setValue(notification);
-        }
+            ref.child(id_p).push().setValue(notification);
+            return 0;
+        } else return -2;
+    }
+
+    public static String getUserEmail() {
+        return FirebaseAuth.getInstance().getCurrentUser().getEmail();
     }
 
     private static void showFailToInviteMessage() {
@@ -129,7 +146,7 @@ public class DatabaseHelper {
     }
 
     public static void getUserMap() {
-        res.put(currentUserID(), "nmnhut@apcs.vn");
+        // res.put(currentUserID(), getUserEmail());
         if (finishedUserList == 1)
             return;
         FirebaseDatabase db = FirebaseDatabase.getInstance();
@@ -138,7 +155,12 @@ public class DatabaseHelper {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    res = (HashMap<String, String>) dataSnapshot.getValue();
+                    HashMap<String, String> temp = (HashMap<String, String>) dataSnapshot.getValue();
+                    if (!temp.isEmpty()) {
+                        for (String s : temp.keySet()) {
+                            res.put(temp.get(s), s);
+                        }
+                    }
                 }
             }
 

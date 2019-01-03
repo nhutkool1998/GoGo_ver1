@@ -49,11 +49,14 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -72,8 +75,10 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 
+import static cs486.nmnhut.gogo.DatabaseHelper.InviteMember;
 import static cs486.nmnhut.gogo.DatabaseHelper.RemoveMember;
 import static cs486.nmnhut.gogo.DatabaseHelper.currentUserID;
+import static cs486.nmnhut.gogo.DatabaseHelper.getUserEmail;
 
 public class TripDescriptionActivity extends AppCompatActivity {
 
@@ -489,9 +494,9 @@ public class TripDescriptionActivity extends AppCompatActivity {
                                 DatePicker datePicker = dialogView.findViewById(R.id.date_picker);
                                 TimePicker timePicker = dialogView.findViewById(R.id.time_picker);
                                 Calendar calendar1 = Calendar.getInstance();
+                                datePicker.setMinDate(calendar1.getTime().getDate());
 
-                                datePicker.updateDate(calendar1.getTime().getYear(),
-                                        calendar1.getTime().getMonth(), calendar1.getTime().getDay());
+
 
                                 Calendar calendar = new GregorianCalendar(datePicker.getYear(),
                                         datePicker.getMonth(),
@@ -619,7 +624,7 @@ public class TripDescriptionActivity extends AppCompatActivity {
         Spinner spinner;
         MySpinnerAdapter adapter;
         ArrayList<String> listMemberName;
-
+        boolean firstrun;
         public FragmentMember() {
 
         }
@@ -642,7 +647,7 @@ public class TripDescriptionActivity extends AppCompatActivity {
             mMap = v.findViewById(R.id.map);
             mMap.onCreate(savedInstanceState);
             mMap.onResume();
-
+            // firstrun = true;
             mMap.getMapAsync(this);
 
             listMemberName = new ArrayList<>();
@@ -650,25 +655,28 @@ public class TripDescriptionActivity extends AppCompatActivity {
             FirebaseDatabase db = FirebaseDatabase.getInstance();
             DatabaseReference ref = db.getReference("trip/" + TripID + "/members");
             initializeMemberFragment(container, v);
-
             return v;
         }
 
         private void initializeMemberFragment(@Nullable ViewGroup container, View v) {
             FirebaseDatabase db = FirebaseDatabase.getInstance();
             DatabaseReference ref = db.getReference("trip/" + TripID + "/members");
-
+            firstrun = true;
             final ValueEventListener positionEvent = new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    String UID = dataSnapshot.getKey();
-                    String latS = dataSnapshot.child("lat").getValue(String.class);
-                    float lat = Float.parseFloat(latS);
+                    try {
+                        String UID = dataSnapshot.getKey();
+                        String latS = dataSnapshot.child("lat").getValue(String.class);
+                        float lat = Float.parseFloat(latS);
 
-                    String lngS = dataSnapshot.child("lng").getValue(String.class);
-                    float lng = Float.parseFloat(lngS);
-                    tripMembers.get(UID).position.setLat(lat);
-                    tripMembers.get(UID).position.setLng(lng);
+                        String lngS = dataSnapshot.child("lng").getValue(String.class);
+                        float lng = Float.parseFloat(lngS);
+                        tripMembers.get(UID).position.setLat(lat);
+                        tripMembers.get(UID).position.setLng(lng);
+                    } catch (Exception ex) {
+
+                    }
                 }
 
                 @Override
@@ -734,22 +742,34 @@ public class TripDescriptionActivity extends AppCompatActivity {
                 for (String k : tripMembers.keySet()) {
                     listMemberName.add(tripMembers.get(k).name);
                 }
-            listMemberName.add(0, "Invite friend...");
+            listMemberName.add("Invite friend...");
             spinner = v.findViewById(R.id.spinnerMember);
 //            adapter = new MySpinnerAdapter(container.getContext(),R.layout.spinner_item,listMemberName);
 //            spinner.setAdapter(adapter);
-
+            firstrun = true;
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    if (position == 0)
-                        showAddMemberDialog();
+                    if (listMemberName.get(position).equals("Invite friend..."))
+                        if (!firstrun) {
+                            showAddMemberDialog();
+
+                        } else firstrun = false;
                     else
                         showMemberPosition(listMemberName.get(position));
+
                 }
 
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
+                    int position = spinner.getSelectedItemPosition();
+                    if (listMemberName.get(position).equals("Invite friend..."))
+                        if (!firstrun) {
+                            showAddMemberDialog();
+
+                        } else firstrun = false;
+                    else
+                        showMemberPosition(listMemberName.get(position));
 
                 }
             });
@@ -768,6 +788,19 @@ public class TripDescriptionActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     String value = input.getText().toString();
                     //TODO: fds
+                    int res = InviteMember("Hey guy, Join my trip - by " + getUserEmail(), TripID, HostID, value);
+                    if (res == 0) {
+                        Toast t = Toast.makeText(getContext(), "Invitation sent", Toast.LENGTH_SHORT);
+                        t.show();
+                    }
+                    if (res == -1) {
+                        Toast t = Toast.makeText(getContext(), "Invitation fail. No such user exist", Toast.LENGTH_SHORT);
+                        t.show();
+                    }
+                    if (res == -2) {
+                        Toast t = Toast.makeText(getContext(), "Invitation fail. You is not the host", Toast.LENGTH_SHORT);
+                        t.show();
+                    }
                     return;
                 }
             });
@@ -788,35 +821,54 @@ public class TripDescriptionActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onMapReady(GoogleMap googleMap) {
+        public void onMapReady(final GoogleMap googleMap) {
             this.map = googleMap;
             final Handler UI_HANDLER = new Handler();
             final GoogleMap gg = googleMap;
+            updateMemberMap();
             final Runnable UI_UPDATE_RUNNABLE = new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        map.clear();
-                        TripMember.ToaDo td = tripMembers.get(currentUserID()).position;
-                        for (String k : tripMembers.keySet()) {
-                            TripMember t = tripMembers.get(k);
-                            map.addMarker(new MarkerOptions()
-                                    .position(new LatLng(t.position.lat, t.position.lng))
-                                    .title(t.name));
-                            map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(t.position.lat, t.position.lng)));
-                            if (t.alarm && td.Distance(t.position) > 1000) {
-                                MediaPlayer mp = MediaPlayer.create(getContext(), R.raw.notification);
-                                mp.start();
-                            }
-                        }
-
-                        UI_HANDLER.postDelayed(this, 10000);
+                        updateMemberMap();
+                        UI_HANDLER.postDelayed(this, 60000);
                     } catch (Exception ex) {
 
                     }
                 }
             };
-            UI_HANDLER.postDelayed(UI_UPDATE_RUNNABLE, 10000);
+            UI_HANDLER.postDelayed(UI_UPDATE_RUNNABLE, 60000);
+        }
+
+        public void updateMemberMap() {
+            try {
+                map.clear();
+                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+                TripMember.ToaDo td = tripMembers.get(currentUserID()).position;
+                for (String k : tripMembers.keySet()) {
+                    TripMember t = tripMembers.get(k);
+
+                    LatLng ln = new LatLng(t.position.lat, t.position.lng);
+                    map.addMarker(new MarkerOptions()
+                            .position(ln)
+                            .title(t.name).snippet(t.name));
+                    builder.include(ln);
+                    double d = td.Distance(t.position);
+                    if (t.alarm && d > 1000) {
+                        MediaPlayer mp = MediaPlayer.create(getContext(), R.raw.notification);
+                        mp.start();
+                    }
+                }
+
+                LatLngBounds bounds = builder.build();
+                CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(bounds.getCenter(), 200);
+                map.moveCamera(cu);
+                map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 200));
+
+            } catch (Exception ex) {
+
+            }
         }
 
         public class MySpinnerAdapter extends ArrayAdapter<String> implements SpinnerAdapter {
