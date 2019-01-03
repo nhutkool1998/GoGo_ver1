@@ -7,10 +7,10 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
     <string name="super_long_string">Hey guy, Join my trip at …! We are having such interesting topic out there. Please join in right now\nHey guy, Join my trip at …! We are having such interesting topic out there. Please join in right now\nHey guy, Join my trip at …! We are having such interesting topic out there. Please join in right now\n</string>
-    <string name="you_are_currently_on_a_trip_ncheck_out_the_plan">You have trip(s) awaiting!\nCheck out!</string>
+    <string name="you_are_currently_on_a_trip_ncheck_out_the_plan">You have some trips planned. Check out!</string>
     <string name="decline">Decline</string>
     <string name="accept">Accept</string>
-    <string name="currently_there_is_no_trip_n_create_one">Currently, there is no trip.\nMake one!</string>
+    <string name="currently_there_is_no_trip_n_create_one">Let\'s go\ Make a new trip!</string>
     <string name="title_activity_trips">My trips</string>
     <string name="tab_text_1">Plan</string>
     <string name="tab_text_2">Member</string>

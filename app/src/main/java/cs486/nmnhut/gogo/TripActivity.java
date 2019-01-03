@@ -6,6 +6,7 @@ class TripActivity {
     String startDate;
     String endDate;
     String place;
+    ToaDo toaDo;
     boolean alarm;
 
     public boolean isAlarm() {

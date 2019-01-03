@@ -39,7 +39,7 @@ public class ViewHolder_current_trip extends RecyclerView.ViewHolder{
     {
         super(v);
         btnCurrentTrip = v.findViewById(R.id.btnCurrentTrip);
-        btnChatBox = v.findViewById(R.id.btnShowChatbox);
+        // btnChatBox = v.findViewById(R.id.btnShowChatbox);
         txtMessage = v.findViewById(R.id.txtAssistantMessage);
     }
 }

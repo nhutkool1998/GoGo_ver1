@@ -1,6 +1,5 @@
 package cs486.nmnhut.gogo;
 
-import android.location.Location;
 import android.support.annotation.NonNull;
 
 import com.google.firebase.database.DataSnapshot;
@@ -65,35 +64,4 @@ public class TripMember {
         return alarm;
     }
 
-    public static class ToaDo {
-        double lat;
-        double lng;
-
-        ToaDo() {
-            lat = 0;
-            lng = 0;
-        }
-
-        public double getLat() {
-            return lat;
-        }
-
-        public void setLat(float lat) {
-            this.lat = lat;
-        }
-
-        public double getLng() {
-            return lng;
-        }
-
-        public void setLng(float lng) {
-            this.lng = lng;
-        }
-
-        public double Distance(ToaDo t) {
-            float[] res = new float[1];
-            Location.distanceBetween(t.lat, t.lng, this.lat, this.lng, res);
-            return res[0];
-        }
-    }
 }

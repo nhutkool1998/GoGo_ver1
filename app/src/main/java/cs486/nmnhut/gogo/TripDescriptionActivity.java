@@ -45,6 +45,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.directions.route.Routing;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
@@ -56,7 +57,6 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -74,6 +74,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.List;
 
 import static cs486.nmnhut.gogo.DatabaseHelper.InviteMember;
 import static cs486.nmnhut.gogo.DatabaseHelper.RemoveMember;
@@ -182,8 +183,8 @@ public class TripDescriptionActivity extends AppCompatActivity {
                     Place place = PlaceAutocomplete.getPlace(getActivity(), data);
                    /* adapter.list.get(click_position).place = place.getAddress().toString();
                     adapter.notifyDataSetChanged();*/
-
                     activities.get(click_position).place = place.getAddress().toString();
+                    activities.get(click_position).toaDo = new ToaDo(place.getLatLng());
                     adapter = new FragmentPlanListAdapter(activities);
                     btnSaveChange.setVisibility(View.VISIBLE);
                     listViewActivity.setAdapter(adapter);
@@ -256,6 +257,23 @@ public class TripDescriptionActivity extends AppCompatActivity {
             return v;
         }
 
+        void OptimizeWaypoint() {
+            if (activities.size() < 3) {
+                return;
+            }
+            LatLng start = activities.get(0).toaDo.getLatLng();
+            LatLng end = activities.get(activities.size() - 1).toaDo.getLatLng();
+            List<LatLng> waypoint = new ArrayList<>();
+            for (int i = 1; i <= activities.size() - 2; ++i) {
+                waypoint.add(activities.get(i).toaDo.getLatLng());
+            }
+//            Routing routing = new Routing.Builder()
+//                    .travelMode(Routing.TravelMode.WALKING)
+//                    .withListener(this)
+//                    .waypoints(start, waypoint, end)
+//                    .build();
+//            routing.execute();
+        }
         private void populateActivityList() {
             FirebaseDatabase db = FirebaseDatabase.getInstance();
 
@@ -296,9 +314,6 @@ public class TripDescriptionActivity extends AppCompatActivity {
                     btnSaveChange.setVisibility(View.VISIBLE);
                     activities.add(tripActivity);
                     adapter.notifyDataSetChanged();
-                    FirebaseDatabase db = FirebaseDatabase.getInstance();
-                    DatabaseReference ref = db.getReference("trip/" + TripID + "/plan/activities");
-                    ref.setValue(activities);
 
 
                 }
@@ -313,6 +328,15 @@ public class TripDescriptionActivity extends AppCompatActivity {
             btnSaveChange.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (activities.isEmpty())
+                        return;
+                    for (TripActivity t : activities) {
+                        if (t.place == null) {
+                            Toast toast = Toast.makeText(getContext(), "Error: Invalid place", Toast.LENGTH_SHORT);
+                            toast.show();
+                            return;
+                        }
+                    }
                     FirebaseDatabase db = FirebaseDatabase.getInstance();
                     DatabaseReference ref = db.getReference("trip/" + TripID + "/plan/activities");
                     ref.setValue(activities);
@@ -845,7 +869,7 @@ public class TripDescriptionActivity extends AppCompatActivity {
                 map.clear();
                 LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-                TripMember.ToaDo td = tripMembers.get(currentUserID()).position;
+                ToaDo td = tripMembers.get(currentUserID()).position;
                 for (String k : tripMembers.keySet()) {
                     TripMember t = tripMembers.get(k);
 
@@ -856,7 +880,7 @@ public class TripDescriptionActivity extends AppCompatActivity {
                     builder.include(ln);
                     double d = td.Distance(t.position);
                     if (t.alarm && d > 1000) {
-                        MediaPlayer mp = MediaPlayer.create(getContext(), R.raw.notification);
+                        MediaPlayer mp = MediaPlayer.create(getContext(), R.raw.alert);
                         mp.start();
                     }
                 }

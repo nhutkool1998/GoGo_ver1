@@ -13,6 +13,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -23,7 +24,7 @@ public class GeolocationHelper {
     private static String Username = "";
     public final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 100;
     private FusedLocationProviderClient mFusedLocationClient;
-
+    static LatLng currentPosition;
     GeolocationHelper(Activity activity, String username) {
         Username = username;
         locationRequest = new LocationRequest();
@@ -42,6 +43,7 @@ public class GeolocationHelper {
                 for (Location location : locationResult.getLocations()) {
                     // Update UI with location data
                     // ...
+                    currentPosition = new LatLng(location.getLatitude(), location.getLongitude());
                     String s = "position/" + GeolocationHelper.Username;
                     FirebaseDatabase db = FirebaseDatabase.getInstance();
                     DatabaseReference ref = db.getReference(s);
@@ -66,6 +68,10 @@ public class GeolocationHelper {
         }
 
 
+    }
+
+    public static LatLng getCurrentPosition() {
+        return currentPosition;
     }
 
     @SuppressLint("MissingPermission")

@@ -1,7 +1,5 @@
 package cs486.nmnhut.gogo;
 
-import android.app.Notification;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -68,7 +66,7 @@ public class DatabaseHelper {
         for (String k : res.keySet()) {
             TripMember tripMember = new TripMember();
 
-            tripMember.position = new TripMember.ToaDo();
+            tripMember.position = new ToaDo();
             tripMember.setId(k);
             tripMember.position.setLat(80 + i);
             tripMember.position.setLng(80 + i);

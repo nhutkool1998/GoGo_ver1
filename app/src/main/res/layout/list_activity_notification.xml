@@ -51,24 +51,8 @@
                android:textAllCaps="false"
                android:textColor="#FFF"
                card_view:layout_constraintBottom_toBottomOf="parent"
-               card_view:layout_constraintLeft_toLeftOf="@id/txtNotification"
-               card_view:layout_constraintRight_toLeftOf="@id/btnShowChatbox"
-               card_view:layout_constraintTop_toBottomOf="@id/txtNotification" />
-
-           <Button
-               android:id="@+id/btnShowChatbox"
-               android:layout_width="130dp"
-               android:layout_height="30dp"
-               android:layout_gravity="center"
-               android:layout_marginTop="4dp"
-               android:layout_marginBottom="8dp"
-               android:background="@drawable/round_button"
-               android:text="Show Chat Box!"
-               android:textAllCaps="false"
-               android:textColor="#FFF"
-               card_view:layout_constraintBottom_toBottomOf="parent"
-               card_view:layout_constraintLeft_toRightOf="@id/btnCurrentTrip"
-               card_view:layout_constraintRight_toRightOf="@id/txtNotification"
+               card_view:layout_constraintLeft_toLeftOf="parent"
+               card_view:layout_constraintRight_toRightOf="parent"
                card_view:layout_constraintTop_toBottomOf="@id/txtNotification" />
 
 

@@ -42,7 +42,8 @@ public class MainActivity extends AppCompatActivity
     final int NetworkPermission = 100;
     final int LocationPermission = 101;
     LinearLayoutManager linearLayoutManager = null;
-    //    final mNotification viewCurrentTrips =  new mNotification()
+    final mNotification notification_viewCurrentTrips = new mNotification("GoGo", "The worst author", mNotification.ACTIVITY_NOTIFICATION);
+    final mNotification notification_createNewTrips = new mNotification("GoGo", "The worst author", mNotification.NEW_TRIP);
     private final ChildEventListener childEventListener = new ChildEventListener() {
         @Override
         public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -66,7 +67,6 @@ public class MainActivity extends AppCompatActivity
             mNotificationArrayList.remove(position);
             mNotificationIDs.remove(position);
             notificationAdapter.remove(position);
-
         }
 
         @Override
@@ -126,6 +126,15 @@ public class MainActivity extends AppCompatActivity
         //notificationList.setAdapter(notificationAdapter);
     }
 
+    void setGoGoNotification() {
+        db = FirebaseDatabase.getInstance();
+        String UID = DatabaseHelper.currentUserID();
+        DatabaseReference ref = db.getReference("notif/" + UID);
+        ref.child("newNotif").setValue(notification_createNewTrips);
+        ref.child("currentNotif").setValue(notification_viewCurrentTrips);
+    }
+
+
     private void setSampleData() {
         mNotification a = new mNotification("dd","ddd",mNotification.NEW_TRIP);
         mNotification b = new mNotification("Đi Đà Lạt hông?","Gấu",mNotification.TRIP_INVITATION);
@@ -134,6 +143,7 @@ public class MainActivity extends AppCompatActivity
         mNotificationArrayList.add(b);
         mNotificationArrayList.add(c);
     }
+
 
     private void checkPermissions_and_Initialize() {
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.INTERNET)
@@ -287,7 +297,7 @@ public class MainActivity extends AppCompatActivity
 
     public void ShowNewTripScreen()
     {
-        //TODO: implement show new trip screen
+
     }
 
 
