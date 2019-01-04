@@ -143,6 +143,10 @@ public class DatabaseHelper {
         return mAuth.getCurrentUser().getUid();
     }
 
+    public static String getUserIDfromName(String Name) {
+        return res.get(Name);
+    }
+
     public static void getUserMap() {
         // res.put(currentUserID(), getUserEmail());
         if (finishedUserList == 1)

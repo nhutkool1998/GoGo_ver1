@@ -66,6 +66,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -528,6 +529,7 @@ public class TripDescriptionActivity extends AppCompatActivity {
                                 txtEndTime.setText(s);
                                 activities.get(position).endDate = s;
                                 alertDialog.dismiss();
+                                btnSaveChange.setVisibility(View.VISIBLE);
                             } else {
                                 Toast t = Toast.makeText(v.getContext(), "End time must be after start time", Toast.LENGTH_SHORT);
                                 t.show();
@@ -585,6 +587,7 @@ public class TripDescriptionActivity extends AppCompatActivity {
                                 txtStartTime.setText(s);
                                 activities.get(position).startDate = s;
                                 alertDialog.dismiss();
+                                btnSaveChange.setVisibility(View.VISIBLE);
                             } else {
                                 Toast t = Toast.makeText(v.getContext(), "Time and date must be in the future!", Toast.LENGTH_SHORT);
                                 t.show();
@@ -917,9 +920,10 @@ public class TripDescriptionActivity extends AppCompatActivity {
                         if (!firstrun) {
                             showAddMemberDialog();
 
-                        } else firstrun = false;
+                        }
                     else
                         showMemberPosition(listMemberName.get(position));
+                    firstrun = false;
 
                 }
 
@@ -929,11 +933,10 @@ public class TripDescriptionActivity extends AppCompatActivity {
                     if (listMemberName.get(position).equals("Invite friend..."))
                         if (!firstrun) {
                             showAddMemberDialog();
-
-                        } else firstrun = false;
+                        }
                     else
                         showMemberPosition(listMemberName.get(position));
-
+                    firstrun = false;
                 }
             });
         }
@@ -979,8 +982,10 @@ public class TripDescriptionActivity extends AppCompatActivity {
         }
 
         private void showMemberPosition(String name) {
-
-
+            String key = DatabaseHelper.getUserIDfromName(name);
+            ToaDo t = tripMembers.get(key).position;
+            LatLng latLng = t.getLatLng();
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, map.getMaxZoomLevel()));
         }
 
         @Override
