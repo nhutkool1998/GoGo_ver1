@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity
     FirebaseDatabase db;
     long notificationCount = 0;
     String UID;//   mNotificationArrayList.add(newNotification);
+    private String currentUserID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,6 +185,12 @@ public class MainActivity extends AppCompatActivity
 
 
     private void initialize() {
+        setGoGoNotification();
+
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("UID", DatabaseHelper.currentUserID());
+        startActivity(intent);
+
         if (linearLayoutManager == null)
             linearLayoutManager = new LinearLayoutManager(MainActivity.this);
         if (mNotificationArrayList == null)
@@ -297,7 +304,31 @@ public class MainActivity extends AppCompatActivity
 
     public void ShowNewTripScreen()
     {
+        currentUserID = DatabaseHelper.currentUserID();
+        MyTrip myTrip = new MyTrip();
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference ref = db.getReference("trip");
+        String key = ref.push().getKey();
 
+        myTrip.hostID = currentUserID;
+
+        myTrip.tripDescription = "Trip Description";
+        TripMember t = new TripMember();
+        t.alarm = false;
+        t.position = new ToaDo(GeolocationHelper.getCurrentPosition());
+        t.name = DatabaseHelper.getUserEmail();
+
+        myTrip.members.put(currentUserID, t);
+
+        DatabaseReference ref2 = db.getReference("user/" + currentUserID + "/trip");
+        ref2.child(key).setValue(true);
+        ref.child(key).setValue(myTrip);
+        Intent intent = new Intent(this, TripDescriptionActivity.class);
+        //  TripID = bundle.getString("TripID");
+        // HostID = bundle.getString("HostID");
+        intent.putExtra("TripID", key);
+        intent.putExtra("HostID", currentUserID);
+        startActivity(intent);
     }
 
 
@@ -436,14 +467,6 @@ public class MainActivity extends AppCompatActivity
             });
             btnCurrentTrip.setFocusable(false);
 
-            Button btnShowChatBox = vh1.getBtnChatBox();
-            btnShowChatBox.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ShowChatBox();
-                }
-            });
-            btnShowChatBox.setFocusable(false);
 
         }
 

@@ -1,5 +1,6 @@
 package cs486.nmnhut.gogo;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -45,7 +46,16 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.directions.route.Route;
+import com.directions.route.RouteException;
 import com.directions.route.Routing;
+import com.directions.route.RoutingListener;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
@@ -66,6 +76,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Array;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -164,7 +175,7 @@ public class TripDescriptionActivity extends AppCompatActivity {
         FragmentPlanListAdapter adapter;
         LinearLayoutManager linearLayoutManager;
         int click_position;
-        Button btnSaveChange, btnNewTripActivity;
+        Button btnSaveChange, btnNewTripActivity, btnOptimize;
         final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
         private PendingIntent alarmIntent;
         private AlarmManager alarmManager;
@@ -183,7 +194,7 @@ public class TripDescriptionActivity extends AppCompatActivity {
                     Place place = PlaceAutocomplete.getPlace(getActivity(), data);
                    /* adapter.list.get(click_position).place = place.getAddress().toString();
                     adapter.notifyDataSetChanged();*/
-                    activities.get(click_position).place = place.getAddress().toString();
+                    activities.get(click_position).place = place.getName().toString();
                     activities.get(click_position).toaDo = new ToaDo(place.getLatLng());
                     adapter = new FragmentPlanListAdapter(activities);
                     btnSaveChange.setVisibility(View.VISIBLE);
@@ -217,10 +228,13 @@ public class TripDescriptionActivity extends AppCompatActivity {
             }
             btnNewTripActivity = v.findViewById(R.id.btnNewTripActivity);
             btnSaveChange = v.findViewById(R.id.btnSaveChanges);
+            btnOptimize = v.findViewById(R.id.btnOptimize);
 
             onBtnSaveChangeClick();
             btnSaveChange.setVisibility(View.INVISIBLE);
             onButtonNewActivityClick();
+
+            onButtonOptimizeClick();
 
             listViewActivity = v.findViewById(R.id.listViewActivity);
             activities = new ArrayList<>();
@@ -257,23 +271,81 @@ public class TripDescriptionActivity extends AppCompatActivity {
             return v;
         }
 
+        private void onButtonOptimizeClick() {
+            btnOptimize.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    OptimizeWaypoint();
+                }
+            });
+        }
+
         void OptimizeWaypoint() {
             if (activities.size() < 3) {
                 return;
             }
             LatLng start = activities.get(0).toaDo.getLatLng();
             LatLng end = activities.get(activities.size() - 1).toaDo.getLatLng();
-            List<LatLng> waypoint = new ArrayList<>();
-            for (int i = 1; i <= activities.size() - 2; ++i) {
+            final List<LatLng> waypoint = new ArrayList<>();
+            ArrayList<Integer> activity_position = new ArrayList<>();
+            for (int i = 0; i <= activities.size() - 1; ++i) {
                 waypoint.add(activities.get(i).toaDo.getLatLng());
+                activity_position.add(i);
             }
-//            Routing routing = new Routing.Builder()
-//                    .travelMode(Routing.TravelMode.WALKING)
-//                    .withListener(this)
-//                    .waypoints(start, waypoint, end)
-//                    .build();
-//            routing.execute();
+            RoutingListener myListener = new RoutingListener() {
+                @Override
+                public void onRoutingFailure(RouteException e) {
+                    Toast t = Toast.makeText(getContext(), "ff", Toast.LENGTH_SHORT);
+                    t.show();
+                }
+
+                @Override
+                public void onRoutingStart() {
+
+                }
+
+                @Override
+                public void onRoutingSuccess(ArrayList<Route> arrayList, int i) {
+                    Route r = arrayList.get(i);
+                    List<LatLng> l = r.getPoints();
+                    Toast t = Toast.makeText(getContext(), "ff", Toast.LENGTH_SHORT);
+                    ArrayList<TripActivity> tempActivities = new ArrayList<>();
+                    for (int count = 0; count < l.size(); ++count) {
+                        LatLng latLng = l.get(count);
+                        double curLat = latLng.latitude;
+                        double curLng = latLng.longitude;
+                        for (int count2 = 0; count2 < waypoint.size(); ++count2) {
+                            double waypointLat = waypoint.get(count2).latitude;
+                            double waypointLng = waypoint.get(count2).longitude;
+                            if (curLat == waypointLat && curLng == waypointLng)
+                                tempActivities.add(activities.get(count2));
+                        }
+                    }
+                    if (tempActivities.isEmpty())
+                        return;
+                    activities.clear();
+                    activities.addAll(tempActivities);
+                    btnSaveChange.setVisibility(View.VISIBLE);
+                    adapter = new FragmentPlanListAdapter(activities);
+                    listViewActivity.setAdapter(adapter);
+                }
+
+                @Override
+                public void onRoutingCancelled() {
+
+                }
+            };
+            Routing routing = new Routing.Builder()
+                    .travelMode(Routing.TravelMode.WALKING)
+                    .withListener(myListener)
+                    .waypoints(waypoint)
+                    .optimize(true)
+                    .key("AIzaSyBW451Z4by0fT7q9Hnt0dT-_Dp8vckjzgg")
+                    .build();
+            routing.execute();
+
         }
+
         private void populateActivityList() {
             FirebaseDatabase db = FirebaseDatabase.getInstance();
 
@@ -298,6 +370,28 @@ public class TripDescriptionActivity extends AppCompatActivity {
             });
         }
 
+        void newOptimize() {
+            RequestQueue queue = Volley.newRequestQueue(getContext());
+            String url = "http://www.google.com";
+
+// Request a string response from the provided URL.
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            // Display the first 500 characters of the response string.
+
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                }
+            });
+
+// Add the request to the RequestQueue.
+            queue.add(stringRequest);
+        }
+
         private void onButtonNewActivityClick() {
             if (!HostID.equals(currentUserID())) {
                 btnNewTripActivity.setVisibility(View.INVISIBLE);
@@ -313,6 +407,7 @@ public class TripDescriptionActivity extends AppCompatActivity {
                     tripActivity.endDate = "";
                     btnSaveChange.setVisibility(View.VISIBLE);
                     activities.add(tripActivity);
+                    adapter.list = activities;
                     adapter.notifyDataSetChanged();
 
 
@@ -328,18 +423,24 @@ public class TripDescriptionActivity extends AppCompatActivity {
             btnSaveChange.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (activities.isEmpty())
-                        return;
-                    for (TripActivity t : activities) {
-                        if (t.place == null) {
-                            Toast toast = Toast.makeText(getContext(), "Error: Invalid place", Toast.LENGTH_SHORT);
-                            toast.show();
-                            return;
+                    String tripDescription = "Trip Description ";
+                    if (!activities.isEmpty()) {
+                        for (TripActivity t : activities) {
+                            if (t.place == null) {
+                                Toast toast = Toast.makeText(getContext(), "Error: Invalid place", Toast.LENGTH_SHORT);
+                                toast.show();
+                                return;
+                            }
                         }
+                        tripDescription = "From " + activities.get(0).place + "\n" + "To: " + activities.get(activities.size() - 1).place;
                     }
                     FirebaseDatabase db = FirebaseDatabase.getInstance();
                     DatabaseReference ref = db.getReference("trip/" + TripID + "/plan/activities");
                     ref.setValue(activities);
+
+                    DatabaseReference ref2 = db.getReference("trip/" + TripID);
+                    ref2.child("tripDescription").setValue(tripDescription);
+
                     btnSaveChange.setVisibility(View.INVISIBLE);
                 }
             });
@@ -385,7 +486,6 @@ public class TripDescriptionActivity extends AppCompatActivity {
             ArrayList<TripActivity> list;
 
 
-
             public FragmentPlanListAdapter(ArrayList<TripActivity> list) {
                 this.list = list;
 
@@ -402,7 +502,7 @@ public class TripDescriptionActivity extends AppCompatActivity {
 
             @SuppressLint("ClickableViewAccessibility")
             @Override
-            public void onBindViewHolder(@NonNull final PlanItem holder, int position) {
+            public void onBindViewHolder(@NonNull final PlanItem holder, final int position) {
                 EditText txtPlace = holder.getTxtPlace();
                 final EditText txtStartTime = holder.getTxtStartTime();
                 final EditText txtEndTime = holder.getTxtEndTime();
@@ -486,6 +586,7 @@ public class TripDescriptionActivity extends AppCompatActivity {
 
                                 if (now.compareTo(s) <= 0) {
                                     txtStartTime.setText(s);
+                                    activities.get(position).startDate = s;
                                     alertDialog.dismiss();
                                 } else {
                                     Toast t = Toast.makeText(v.getContext(), "Time and date must be in the future!", Toast.LENGTH_SHORT);
@@ -521,7 +622,6 @@ public class TripDescriptionActivity extends AppCompatActivity {
                                 datePicker.setMinDate(calendar1.getTime().getDate());
 
 
-
                                 Calendar calendar = new GregorianCalendar(datePicker.getYear(),
                                         datePicker.getMonth(),
                                         datePicker.getDayOfMonth(),
@@ -535,6 +635,7 @@ public class TripDescriptionActivity extends AppCompatActivity {
                                 String start = txtStartTime.getText().toString();
                                 if (start.compareTo(s) <= 0) {
                                     txtEndTime.setText(s);
+                                    activities.get(position).endDate = s;
                                     alertDialog.dismiss();
                                 } else {
                                     Toast t = Toast.makeText(v.getContext(), "End time must be after start time", Toast.LENGTH_SHORT);
@@ -649,6 +750,7 @@ public class TripDescriptionActivity extends AppCompatActivity {
         MySpinnerAdapter adapter;
         ArrayList<String> listMemberName;
         boolean firstrun;
+
         public FragmentMember() {
 
         }

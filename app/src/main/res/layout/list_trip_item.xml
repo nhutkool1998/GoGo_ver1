@@ -25,8 +25,23 @@
                 android:gravity="left"
                 android:maxLines="2"
                 android:text="@string/trip_dalat_time_3_days"
+                android:ellipsize="end"
                 android:textSize="20sp"
+                card_view:layout_constraintEnd_toStartOf="@id/btnRemoveTrip"
                 card_view:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/txtTripMessage2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:gravity="left"
+                android:maxLines="2"
+                android:text="@string/trip_dalat_time_3_days"
+                android:textSize="20sp"
+                card_view:layout_constraintEnd_toStartOf="@id/btnRemoveTrip"
+                card_view:layout_constraintStart_toStartOf="parent"
+                card_view:layout_constraintTop_toBottomOf="@id/txtTripMessage" />
 
             <Button
                 android:id="@+id/btnRemoveTrip"

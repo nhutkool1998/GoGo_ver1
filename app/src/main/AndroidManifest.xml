@@ -38,11 +38,11 @@
             android:name=".TripListActivity"
             android:parentActivityName=".MainActivity" />
 
+
+        <activity android:name=".AlarmActivity"></activity>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBW451Z4by0fT7q9Hnt0dT-_Dp8vckjzgg" />
-
-        <activity android:name=".AlarmActivity"></activity>
     </application>
 
 </manifest>

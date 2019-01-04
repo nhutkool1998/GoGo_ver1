@@ -14,12 +14,15 @@ class MyTrip {
     TripPlan plan;
 
     MyTrip() {
-
+        members = new HashMap<>();
+        plan = new TripPlan();
     }
 
     MyTrip(String TripID) {
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         DatabaseReference ref = db.getReference("trip/" + TripID);
+        members = new HashMap<>();
+        plan = new TripPlan();
     }
 
     public String getTripDescription() {

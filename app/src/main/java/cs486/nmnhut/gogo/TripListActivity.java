@@ -179,12 +179,21 @@ public class TripListActivity extends AppCompatActivity {
                 convertView = layoutInflater.inflate(R.layout.list_trip_item, parent, false);
                 viewHolder.txtMessage = convertView.findViewById(R.id.txtTripMessage);
                 viewHolder.btnRemove = convertView.findViewById(R.id.btnRemoveTrip);
-
+                viewHolder.txtMessage2 = convertView.findViewById(R.id.txtTripMessage2);
                 convertView.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
             final TripItem temp = list.get(position);
+            String tripDescription = temp.TripMessage;
+            String[] t = tripDescription.split("\n");
+            if (t.length > 1) {
+                viewHolder.txtMessage.setText(t[0]);
+                viewHolder.txtMessage2.setText(t[1]);
+            } else {
+                viewHolder.txtMessage.setText(tripDescription);
+                viewHolder.txtMessage2.setVisibility(View.INVISIBLE);
+            }
             viewHolder.txtMessage.setText(temp.TripMessage);
             viewHolder.btnRemove.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -229,6 +238,7 @@ public class TripListActivity extends AppCompatActivity {
         private class ViewHolder {
             Button btnRemove;
             TextView txtMessage;
+            TextView txtMessage2;
         }
     }
 }

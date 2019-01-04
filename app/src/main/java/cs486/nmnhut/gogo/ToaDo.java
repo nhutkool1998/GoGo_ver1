@@ -43,4 +43,10 @@ public class ToaDo {
     public LatLng getLatLng() {
         return new LatLng(this.lat, this.lng);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        ToaDo t = (ToaDo) obj;
+        return t.lat == this.lat && t.lng == this.lng;
+    }
 }

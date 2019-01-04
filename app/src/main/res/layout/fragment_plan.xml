@@ -16,45 +16,55 @@
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         app:layout_constraintBottom_toBottomOf="@id/fragmentTrip"
-        app:layout_constraintTop_toBottomOf="@id/btnSaveChanges"
+        app:layout_constraintTop_toBottomOf="@id/layoutButtonsBar"
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintTop_creator="1" />
 
-    <Button
-        android:id="@+id/btnSaveChanges"
-        android:layout_width="120dp"
-        android:layout_height="30dp"
-        android:layout_margin="18dp"
-        android:background="@drawable/round_button"
-        android:enabled="true"
-        android:text="Save changes"
-        android:visibility="invisible"
-        android:textAllCaps="false"
-        android:textColor="#FFF"
-        app:layout_constraintRight_toLeftOf="@id/btnSaveChanges"
-        app:layout_constraintStart_toStartOf="@id/guideline_vertical_in_center"
-        app:layout_constraintTop_toTopOf="@id/fragmentTrip" />
+    <LinearLayout
+        android:id="@+id/layoutButtonsBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <android.support.constraint.Guideline
-        android:id="@+id/guideline_vertical_in_center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.5" />
 
-    <Button
-        android:id="@+id/btnNewTripActivity"
-        android:layout_width="120dp"
-        android:layout_height="30dp"
-        android:layout_margin="18dp"
-        android:background="@drawable/round_button"
-        android:text="Add activity"
-        android:textAllCaps="false"
-        android:textColor="#FFF"
-        app:layout_constraintEnd_toStartOf="@id/guideline_vertical_in_center"
-        app:layout_constraintRight_toRightOf="@id/fragmentTrip"
+        <Button
+            android:id="@+id/btnNewTripActivity"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_margin="18dp"
+            android:layout_weight="1"
+            android:background="@drawable/round_button"
+            android:text="Add activity"
+            android:textAllCaps="false"
+            android:textColor="#FFF"
+            app:layout_constraintEnd_toStartOf="@id/guideline_vertical_in_center"
+            app:layout_constraintRight_toRightOf="@id/fragmentTrip"
 
-        app:layout_constraintTop_toTopOf="@id/fragmentTrip" />
+            app:layout_constraintTop_toTopOf="@id/fragmentTrip" />
 
+        <Button
+            android:id="@+id/btnOptimize"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_margin="18dp"
+            android:layout_weight="1"
+            android:background="@drawable/round_button"
+            android:text="Optimize"
+            android:textAllCaps="false"
+            android:textColor="#FFF" />
+
+        <Button
+            android:id="@+id/btnSaveChanges"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_margin="18dp"
+            android:layout_weight="1"
+            android:background="@drawable/round_button"
+            android:enabled="true"
+            android:text="Save changes"
+            android:textAllCaps="false"
+            android:textColor="#FFF"
+            android:visibility="invisible" />
+
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

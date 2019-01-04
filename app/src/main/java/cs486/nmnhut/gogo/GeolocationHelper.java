@@ -24,7 +24,7 @@ public class GeolocationHelper {
     private static String Username = "";
     public final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 100;
     private FusedLocationProviderClient mFusedLocationClient;
-    static LatLng currentPosition;
+    static LatLng currentPosition = new LatLng(0, 0);
     GeolocationHelper(Activity activity, String username) {
         Username = username;
         locationRequest = new LocationRequest();
