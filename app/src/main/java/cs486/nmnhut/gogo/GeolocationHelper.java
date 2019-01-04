@@ -22,13 +22,13 @@ public class GeolocationHelper {
     private static LocationRequest locationRequest;
     private static LocationCallback mLocationCallback;
     private static String Username = "";
-    public final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 100;
+    public static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 1000;
     private FusedLocationProviderClient mFusedLocationClient;
     static LatLng currentPosition = new LatLng(0, 0);
     GeolocationHelper(Activity activity, String username) {
         Username = username;
         locationRequest = new LocationRequest();
-        locationRequest.setInterval(60);
+        locationRequest.setInterval(600);
         locationRequest.setFastestInterval(300);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(((Context) activity));
@@ -54,18 +54,6 @@ public class GeolocationHelper {
 
 
         };
-        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-
-        }
 
 
     }
@@ -84,7 +72,7 @@ public class GeolocationHelper {
         return Username;
     }
 
-    public void stopLoacationUpdates() {
+    public void stopLocationUpdates() {
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
     }
 

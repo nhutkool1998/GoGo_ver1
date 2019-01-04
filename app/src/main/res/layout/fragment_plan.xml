@@ -33,7 +33,7 @@
             android:layout_margin="18dp"
             android:layout_weight="1"
             android:background="@drawable/round_button"
-            android:text="Add activity"
+            android:text="Add"
             android:textAllCaps="false"
             android:textColor="#FFF"
             app:layout_constraintEnd_toStartOf="@id/guideline_vertical_in_center"
@@ -49,6 +49,17 @@
             android:layout_weight="1"
             android:background="@drawable/round_button"
             android:text="Optimize"
+            android:textAllCaps="false"
+            android:textColor="#FFF" />
+
+        <Button
+            android:id="@+id/btnEdit"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_margin="18dp"
+            android:layout_weight="1"
+            android:background="@drawable/round_button"
+            android:text="Edit"
             android:textAllCaps="false"
             android:textColor="#FFF" />
 

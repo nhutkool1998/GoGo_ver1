@@ -33,7 +33,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+
+import static cs486.nmnhut.gogo.GeolocationHelper.MY_PERMISSIONS_REQUEST_FINE_LOCATION;
 
 
 public class MainActivity extends AppCompatActivity
@@ -116,8 +117,13 @@ public class MainActivity extends AppCompatActivity
 
         //setSampleData();
 
-       checkPermissions_and_Initialize();
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        checkPermissions_and_Initialize();
     }
 
     @Override
@@ -151,7 +157,7 @@ public class MainActivity extends AppCompatActivity
                 != PackageManager.PERMISSION_GRANTED) {
             Toast t = Toast.makeText(this, "Permission not granted", Toast.LENGTH_SHORT);
             t.show();
-            requestPermissions(new String[] {Manifest.permission.INTERNET},NetworkPermission);
+            requestPermissions(new String[]{Manifest.permission.INTERNET, Manifest.permission.ACCESS_FINE_LOCATION}, NetworkPermission);
         }
         else
         {
@@ -167,14 +173,25 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == NetworkPermission && grantResults.length > 0  && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-        {
-            initialize();
-        }
-        else
+        boolean ok = true;
+        if (grantResults.length == 0)
         {
             setPermissionDeniedNotification();
+            return;
         }
+
+        if (requestCode == NetworkPermission) {
+            for (int i = 0; i < grantResults.length; ++i) {
+                if (grantResults[i] != PackageManager.PERMISSION_GRANTED)
+                    ok = false;
+            }
+        }
+        if (!ok) {
+            setPermissionDeniedNotification();
+            return;
+        }
+
+        initialize();
 
 
     }
@@ -187,9 +204,7 @@ public class MainActivity extends AppCompatActivity
     private void initialize() {
         setGoGoNotification();
 
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("UID", DatabaseHelper.currentUserID());
-        startActivity(intent);
+
 
         if (linearLayoutManager == null)
             linearLayoutManager = new LinearLayoutManager(MainActivity.this);
@@ -271,7 +286,7 @@ public class MainActivity extends AppCompatActivity
             LaunchCurrentTrips();
 
         } else if (id == R.id.nav_logout) {
-            geolocationHelper.stopLoacationUpdates();
+            geolocationHelper.stopLocationUpdates();
             LogOut();
 
 

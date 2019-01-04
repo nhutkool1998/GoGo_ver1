@@ -26,6 +26,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -76,6 +77,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
@@ -175,10 +181,12 @@ public class TripDescriptionActivity extends AppCompatActivity {
         FragmentPlanListAdapter adapter;
         LinearLayoutManager linearLayoutManager;
         int click_position;
-        Button btnSaveChange, btnNewTripActivity, btnOptimize;
+        Button btnSaveChange, btnNewTripActivity, btnOptimize, btnEdit;
         final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
         private PendingIntent alarmIntent;
         private AlarmManager alarmManager;
+        boolean editable = false;
+        private View.OnTouchListener txtStartTime_Touch;
 
         @Override
         public void onSaveInstanceState(@NonNull Bundle outState) {
@@ -229,12 +237,15 @@ public class TripDescriptionActivity extends AppCompatActivity {
             btnNewTripActivity = v.findViewById(R.id.btnNewTripActivity);
             btnSaveChange = v.findViewById(R.id.btnSaveChanges);
             btnOptimize = v.findViewById(R.id.btnOptimize);
+            btnEdit = v.findViewById(R.id.btnEdit);
+
 
             onBtnSaveChangeClick();
             btnSaveChange.setVisibility(View.INVISIBLE);
             onButtonNewActivityClick();
 
             onButtonOptimizeClick();
+            onButtonEditClick();
 
             listViewActivity = v.findViewById(R.id.listViewActivity);
             activities = new ArrayList<>();
@@ -271,79 +282,27 @@ public class TripDescriptionActivity extends AppCompatActivity {
             return v;
         }
 
-        private void onButtonOptimizeClick() {
-            btnOptimize.setOnClickListener(new View.OnClickListener() {
+        private void onButtonEditClick() {
+            btnEdit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    OptimizeWaypoint();
+                    editable = !editable;
+                    if (editable == true)
+                        btnEdit.setText("Stop");
+                    else
+                        btnEdit.setText("Edit");
                 }
             });
         }
 
-        void OptimizeWaypoint() {
-            if (activities.size() < 3) {
-                return;
-            }
-            LatLng start = activities.get(0).toaDo.getLatLng();
-            LatLng end = activities.get(activities.size() - 1).toaDo.getLatLng();
-            final List<LatLng> waypoint = new ArrayList<>();
-            ArrayList<Integer> activity_position = new ArrayList<>();
-            for (int i = 0; i <= activities.size() - 1; ++i) {
-                waypoint.add(activities.get(i).toaDo.getLatLng());
-                activity_position.add(i);
-            }
-            RoutingListener myListener = new RoutingListener() {
+        private void onButtonOptimizeClick() {
+            btnOptimize.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onRoutingFailure(RouteException e) {
-                    Toast t = Toast.makeText(getContext(), "ff", Toast.LENGTH_SHORT);
-                    t.show();
+                public void onClick(View v) {
+                    // OptimizeWaypoint();
+                    newOptimize();
                 }
-
-                @Override
-                public void onRoutingStart() {
-
-                }
-
-                @Override
-                public void onRoutingSuccess(ArrayList<Route> arrayList, int i) {
-                    Route r = arrayList.get(i);
-                    List<LatLng> l = r.getPoints();
-                    Toast t = Toast.makeText(getContext(), "ff", Toast.LENGTH_SHORT);
-                    ArrayList<TripActivity> tempActivities = new ArrayList<>();
-                    for (int count = 0; count < l.size(); ++count) {
-                        LatLng latLng = l.get(count);
-                        double curLat = latLng.latitude;
-                        double curLng = latLng.longitude;
-                        for (int count2 = 0; count2 < waypoint.size(); ++count2) {
-                            double waypointLat = waypoint.get(count2).latitude;
-                            double waypointLng = waypoint.get(count2).longitude;
-                            if (curLat == waypointLat && curLng == waypointLng)
-                                tempActivities.add(activities.get(count2));
-                        }
-                    }
-                    if (tempActivities.isEmpty())
-                        return;
-                    activities.clear();
-                    activities.addAll(tempActivities);
-                    btnSaveChange.setVisibility(View.VISIBLE);
-                    adapter = new FragmentPlanListAdapter(activities);
-                    listViewActivity.setAdapter(adapter);
-                }
-
-                @Override
-                public void onRoutingCancelled() {
-
-                }
-            };
-            Routing routing = new Routing.Builder()
-                    .travelMode(Routing.TravelMode.WALKING)
-                    .withListener(myListener)
-                    .waypoints(waypoint)
-                    .optimize(true)
-                    .key("AIzaSyBW451Z4by0fT7q9Hnt0dT-_Dp8vckjzgg")
-                    .build();
-            routing.execute();
-
+            });
         }
 
         private void populateActivityList() {
@@ -370,26 +329,84 @@ public class TripDescriptionActivity extends AppCompatActivity {
             });
         }
 
+        String toJSArray(String place, double lat, double lng) {
+//            JSONArray a = new JSONArray();
+//            JSONObject o = new JSONObject();
+//            try {
+//                o.put("address",place);
+//                o.put("lat",lat);
+//                o.put("lng",lng);
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+
+            String res = "{\"address\":";
+            //{"address":"The Hague, The Netherlands","lat":"52.05429","lng":"4.248618"}
+            res = res + "\"" + place + "\",";
+            res += "\"lat\":" + "\"" + lat + "\",";
+            res += "\"lng\":" + "\"" + lng + "\"}";
+            return res;
+        }
+
+        HashMap<String, String> getStringParams() {
+            HashMap<String, String> res = new HashMap<>();
+            String locations = "[";
+            if (activities.isEmpty())
+                return null;
+            for (int i = 0; i < activities.size() - 1; ++i) {
+                TripActivity t = activities.get(i);
+                locations += toJSArray(t.place, t.toaDo.lat, t.toaDo.lng) + ",";
+            }
+            TripActivity t = activities.get(activities.size() - 1);
+            locations += toJSArray(t.place, t.toaDo.lat, t.toaDo.lng) + "]";
+            res.put("locations", locations);
+            return res;
+        }
+
         void newOptimize() {
-            RequestQueue queue = Volley.newRequestQueue(getContext());
-            String url = "http://www.google.com";
-
-// Request a string response from the provided URL.
-            StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            // Display the first 500 characters of the response string.
-
-                        }
-                    }, new Response.ErrorListener() {
+            if (activities.size() <= 3)
+                return;
+            DirectionFinderListener directionFinderListener = new DirectionFinderListener() {
                 @Override
-                public void onErrorResponse(VolleyError error) {
-                }
-            });
+                public void onDirectionFinderStart() {
 
-// Add the request to the RequestQueue.
-            queue.add(stringRequest);
+                }
+
+                @Override
+                public void onDirectionFinderSuccess(List<cs486.nmnhut.gogo.Route> route) {
+                    try {
+                        if (activities.size() <= 3)
+                            return;
+                        List<Integer> waypoints = route.get(0).waypointOrder;
+                        ArrayList<TripActivity> newList = new ArrayList<>();
+                        newList.add(activities.get(0));
+                        for (int i = 0; i < waypoints.size(); ++i) {
+                            newList.add(activities.get(waypoints.get(i) + 1));
+                        }
+                        newList.add(activities.get(activities.size() - 1));
+                        adapter.list = activities;
+                        adapter.notifyDataSetChanged();
+                        btnSaveChange.setVisibility(View.VISIBLE);
+                    } catch (Exception ex) {
+
+                    }
+                }
+            };
+
+            try {
+                List<String> waypoints = new ArrayList<>();
+                int l = activities.size();
+                String start = activities.get(0).place;
+                String end = activities.get(l - 1).place;
+                for (int i = 1; i < l - 1; ++i)
+                    waypoints.add(activities.get(i).place);
+                DirectionFinder directionFinder = new DirectionFinder(directionFinderListener, start, end, waypoints);
+                directionFinder.execute();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+
+
         }
 
         private void onButtonNewActivityClick() {
@@ -446,11 +463,149 @@ public class TripDescriptionActivity extends AppCompatActivity {
             });
         }
 
+        @NonNull
+        public View.OnTouchListener getTxtPlace_Touch(@NonNull final PlanItem holder) {
+            return new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (!editable)
+                        return false;
+                    if (event.getAction() != MotionEvent.ACTION_DOWN)
+                        return false;
+                    v.setEnabled(false);
+                    try {
+                        Intent intent =
+                                new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
+                                        .build(getActivity());
+                        startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+                    } catch (GooglePlayServicesRepairableException e) {
+                        // TODO: Handle the error.
+                    } catch (GooglePlayServicesNotAvailableException e) {
+                        // TODO: Handle the error.
+                    }
+                    click_position = holder.getAdapterPosition();
+                    v.setEnabled(true);
+                    return false;
+                }
+
+            };
+        }
+
+        @NonNull
+        public View.OnTouchListener getTxtEndTime_Touch(final int position, final EditText txtStartTime, final EditText txtEndTime) {
+            return new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(final View v, MotionEvent event) {
+                    if (!editable)
+                        return false;
+                    if (event.getAction() != MotionEvent.ACTION_DOWN)
+                        return false;
+                    final View dialogView = View.inflate(getActivity(), R.layout.datetimepick_dialog, null);
+                    final AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+                    v.setEnabled(false);
+                    dialogView.findViewById(R.id.date_time_set).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+
+                            DatePicker datePicker = dialogView.findViewById(R.id.date_picker);
+                            TimePicker timePicker = dialogView.findViewById(R.id.time_picker);
+                            Calendar calendar1 = Calendar.getInstance();
+                            datePicker.setMinDate(calendar1.getTime().getDate());
+
+
+                            Calendar calendar = new GregorianCalendar(datePicker.getYear(),
+                                    datePicker.getMonth(),
+                                    datePicker.getDayOfMonth(),
+                                    timePicker.getCurrentHour(),
+                                    timePicker.getCurrentMinute());
+
+
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            String s = sdf.format(calendar.getTime());
+
+                            String start = txtStartTime.getText().toString();
+                            if (start.compareTo(s) <= 0) {
+                                txtEndTime.setText(s);
+                                activities.get(position).endDate = s;
+                                alertDialog.dismiss();
+                            } else {
+                                Toast t = Toast.makeText(v.getContext(), "End time must be after start time", Toast.LENGTH_SHORT);
+                                t.show();
+                            }
+                        }
+                    });
+                    alertDialog.setView(dialogView);
+                    alertDialog.show();
+                    v.setEnabled(true);
+                    return false;
+                }
+            };
+        }
+
+        public View.OnTouchListener getTxtStartTime_Touch(final int position, final EditText txtStartTime) {
+            return new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(final View v, MotionEvent event) {
+                    if (!editable)
+                        return false;
+                    if (event.getAction() != MotionEvent.ACTION_DOWN)
+                        return false;
+                    final View dialogView = View.inflate(getActivity(), R.layout.datetimepick_dialog, null);
+                    final AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+                    v.setEnabled(false);
+                    dialogView.findViewById(R.id.date_time_set).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+
+                            DatePicker datePicker = dialogView.findViewById(R.id.date_picker);
+                            TimePicker timePicker = dialogView.findViewById(R.id.time_picker);
+
+                            Calendar calendar1 = Calendar.getInstance();
+
+                            int day = calendar1.getTime().getDay();
+                            int month = calendar1.getTime().getMonth();
+                            int year = calendar1.getTime().getYear();
+
+                            datePicker.setMinDate(calendar1.getTime().getDate());
+
+                            Calendar calendar = new GregorianCalendar(datePicker.getYear(),
+                                    datePicker.getMonth(),
+                                    datePicker.getDayOfMonth(),
+                                    timePicker.getCurrentHour(),
+                                    timePicker.getCurrentMinute());
+
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            String s = sdf.format(calendar.getTime());
+
+
+                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            String now = simpleDateFormat.format(calendar1.getTime());
+
+                            if (now.compareTo(s) <= 0) {
+                                txtStartTime.setText(s);
+                                activities.get(position).startDate = s;
+                                alertDialog.dismiss();
+                            } else {
+                                Toast t = Toast.makeText(v.getContext(), "Time and date must be in the future!", Toast.LENGTH_SHORT);
+                                t.show();
+                            }
+
+
+                        }
+                    });
+                    alertDialog.setView(dialogView);
+                    alertDialog.show();
+                    v.setEnabled(true);
+                    return false;
+                }
+            };
+        }
+
         class PlanItem extends RecyclerView.ViewHolder {
             EditText txtStartTime, txtEndTime, txtPlace;
             ImageButton btnDeleteThisActivity;
             ToggleButton toggleBtnNotificationOnOff;
-
+            View.OnTouchListener txtStartTime_Touch, txtEndTime_Touch, txtPlace_Touch;
             public PlanItem(View itemView) {
                 super(itemView);
                 txtPlace = itemView.findViewById(R.id.txtPlace);
@@ -513,7 +668,6 @@ public class TripDescriptionActivity extends AppCompatActivity {
                 txtPlace.setInputType(InputType.TYPE_NULL);
                 txtStartTime.setInputType(InputType.TYPE_NULL);
 
-
                 onDeleteActivityClick(position, btnDeleteThisActivity);
                 onToggleNotificationClick(position, toggleBtnNotificationOnOff, holder);
                 if (!HostID.equals(currentUserID())) {
@@ -523,136 +677,18 @@ public class TripDescriptionActivity extends AppCompatActivity {
                     txtStartTime.setEnabled(false);
                     btnDeleteThisActivity.setVisibility(View.INVISIBLE);
                 }
-                txtPlace.setOnClickListener(null);
-                txtPlace.setOnTouchListener(new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-                        if (event.getAction() != MotionEvent.ACTION_DOWN)
-                            return false;
-                        v.setEnabled(false);
-                        try {
-                            Intent intent =
-                                    new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
-                                            .build(getActivity());
-                            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
-                        } catch (GooglePlayServicesRepairableException e) {
-                            // TODO: Handle the error.
-                        } catch (GooglePlayServicesNotAvailableException e) {
-                            // TODO: Handle the error.
-                        }
-                        click_position = holder.getAdapterPosition();
-                        v.setEnabled(true);
-                        return false;
-                    }
 
-                });
                 //txtEndTime.addTextChangedListener(enableChangeButton);
                 // txtStartTime.addTextChangedListener(enableChangeButton);
-                txtStartTime.setOnTouchListener(new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(final View v, MotionEvent event) {
-                        if (event.getAction() != MotionEvent.ACTION_DOWN)
-                            return false;
-                        final View dialogView = View.inflate(getActivity(), R.layout.datetimepick_dialog, null);
-                        final AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
-                        v.setEnabled(false);
-                        dialogView.findViewById(R.id.date_time_set).setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-
-                                DatePicker datePicker = dialogView.findViewById(R.id.date_picker);
-                                TimePicker timePicker = dialogView.findViewById(R.id.time_picker);
-
-                                Calendar calendar1 = Calendar.getInstance();
-
-                                int day = calendar1.getTime().getDay();
-                                int month = calendar1.getTime().getMonth();
-                                int year = calendar1.getTime().getYear();
-
-                                datePicker.setMinDate(calendar1.getTime().getDate());
-
-                                Calendar calendar = new GregorianCalendar(datePicker.getYear(),
-                                        datePicker.getMonth(),
-                                        datePicker.getDayOfMonth(),
-                                        timePicker.getCurrentHour(),
-                                        timePicker.getCurrentMinute());
-
-                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                                String s = sdf.format(calendar.getTime());
+                holder.txtStartTime_Touch = getTxtStartTime_Touch(position, txtStartTime);
+                holder.txtEndTime_Touch = getTxtEndTime_Touch(position, txtStartTime, txtEndTime);
+                holder.txtPlace_Touch = getTxtPlace_Touch(holder);
+                txtStartTime.setOnTouchListener(holder.txtStartTime_Touch);
 
 
-                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                                String now = simpleDateFormat.format(calendar1.getTime());
+                txtEndTime.setOnTouchListener(holder.txtEndTime_Touch);
 
-                                if (now.compareTo(s) <= 0) {
-                                    txtStartTime.setText(s);
-                                    activities.get(position).startDate = s;
-                                    alertDialog.dismiss();
-                                } else {
-                                    Toast t = Toast.makeText(v.getContext(), "Time and date must be in the future!", Toast.LENGTH_SHORT);
-                                    t.show();
-                                }
-
-
-                            }
-                        });
-                        alertDialog.setView(dialogView);
-                        alertDialog.show();
-                        v.setEnabled(true);
-                        return false;
-                    }
-                });
-
-
-                txtEndTime.setOnTouchListener(new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(final View v, MotionEvent event) {
-                        if (event.getAction() != MotionEvent.ACTION_DOWN)
-                            return false;
-                        final View dialogView = View.inflate(getActivity(), R.layout.datetimepick_dialog, null);
-                        final AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
-                        v.setEnabled(false);
-                        dialogView.findViewById(R.id.date_time_set).setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-
-                                DatePicker datePicker = dialogView.findViewById(R.id.date_picker);
-                                TimePicker timePicker = dialogView.findViewById(R.id.time_picker);
-                                Calendar calendar1 = Calendar.getInstance();
-                                datePicker.setMinDate(calendar1.getTime().getDate());
-
-
-                                Calendar calendar = new GregorianCalendar(datePicker.getYear(),
-                                        datePicker.getMonth(),
-                                        datePicker.getDayOfMonth(),
-                                        timePicker.getCurrentHour(),
-                                        timePicker.getCurrentMinute());
-
-
-                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                                String s = sdf.format(calendar.getTime());
-
-                                String start = txtStartTime.getText().toString();
-                                if (start.compareTo(s) <= 0) {
-                                    txtEndTime.setText(s);
-                                    activities.get(position).endDate = s;
-                                    alertDialog.dismiss();
-                                } else {
-                                    Toast t = Toast.makeText(v.getContext(), "End time must be after start time", Toast.LENGTH_SHORT);
-                                    t.show();
-                                }
-                            }
-                        });
-                        alertDialog.setView(dialogView);
-                        alertDialog.show();
-                        v.setEnabled(true);
-                        return false;
-                    }
-                });
-
-
-                txtStartTime.setOnClickListener(null);
-
+                txtPlace.setOnTouchListener(holder.txtPlace_Touch);
 
                 btnDeleteThisActivity.setFocusable(false);
                 toggleBtnNotificationOnOff.setFocusable(false);
@@ -698,6 +734,7 @@ public class TripDescriptionActivity extends AppCompatActivity {
                             s = "The application would not notify you a®bout this activity";
                         }
                         Toast t = Toast.makeText(FragmentPlan.this.getContext(), s, Toast.LENGTH_SHORT);
+                        btnSaveChange.setVisibility(View.VISIBLE);
                         t.show();
                     }
                 });
