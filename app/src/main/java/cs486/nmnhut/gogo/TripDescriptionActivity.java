@@ -413,7 +413,7 @@ public class TripDescriptionActivity extends AppCompatActivity {
                 int l = activities.size();
                 String start = activities.get(0).place;
                 String end = activities.get(l - 1).place;
-                for (int i = 1; i < l - 1; ++i)
+                for (int i = 0; i < l; ++i)
                     waypoints.add(activities.get(i).place);
                 DirectionFinder directionFinder = new DirectionFinder(directionFinderListener, start, end, waypoints);
                 directionFinder.execute();

@@ -35,7 +35,8 @@ interface DirectionFinderListener {
 
 public class DirectionFinder {
     static String DIRECTION_URL_API = "https://maps.googleapis.com/maps/api/directions/json?";
-    static String GOOGLE_API_KEY = "AIzaSyB6k2pklYHPGye4KqlyhqWZMt2Dc8ZY6yA";
+    //static String GOOGLE_API_KEY = "AIzaSyB6k2pklYHPGye4KqlyhqWZMt2Dc8ZY6yA";
+    static String GOOGLE_API_KEY = "AIzaSyBW451Z4by0fT7q9Hnt0dT-_Dp8vckjzgg";
     private String origin;
     private String destination;
     private List<String> waypoints;
