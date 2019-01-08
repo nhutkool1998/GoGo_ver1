@@ -1,9 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:orientation="vertical"
     android:layout_height="match_parent"
     tools:context=".AlarmActivity">
 
-</android.support.constraint.ConstraintLayout>
+    <include
+        layout="@layout/list_activity_item"
+        android:layout_margin="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"></include>
+
+    <Button
+        android:id="@+id/btnStopAlarm"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="@drawable/round_button_less"
+        android:layout_margin="16dp"
+        android:text="STOP ALARM"
+        android:textColor="#FFF"
+        android:textStyle="bold"
+        android:textSize="30dp" />
+
+</LinearLayout>

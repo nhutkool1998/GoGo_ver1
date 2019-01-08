@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -25,7 +26,9 @@ public class GeolocationHelper {
     public static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 1000;
     private FusedLocationProviderClient mFusedLocationClient;
     static LatLng currentPosition = new LatLng(0, 0);
+    Activity mActivity;
     GeolocationHelper(Activity activity, String username) {
+        this.mActivity = activity;
         Username = username;
         locationRequest = new LocationRequest();
         locationRequest.setInterval(600);
@@ -56,7 +59,28 @@ public class GeolocationHelper {
         };
 
 
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            requestPermission(activity);
+
+        }
+
+
+
     }
+
+    private void requestPermission(Activity activity) {
+        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+    }
+
+
 
     public static LatLng getCurrentPosition() {
         return currentPosition;
@@ -64,7 +88,10 @@ public class GeolocationHelper {
 
     @SuppressLint("MissingPermission")
     public void requestLocationUpdate() {
-        mFusedLocationClient.requestLocationUpdates(locationRequest, mLocationCallback, null);
+        if (ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermission(mActivity);
+        } else
+            mFusedLocationClient.requestLocationUpdates(locationRequest, mLocationCallback, null);
 
     }
 

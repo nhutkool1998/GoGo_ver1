@@ -30,8 +30,8 @@ public class DatabaseHelper {
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         DatabaseReference ref = db.getReference("user/" + currentUserID() + "/trip");
         ref.child(invitation.getTripID()).setValue(true);
-        DatabaseReference ref2 = db.getReference("notif/" + currentUserID());
-        ref2.child(notificationID).removeValue();
+        DatabaseReference ref2 = db.getReference("notif/" + currentUserID() + "/" + notificationID);
+        ref2.removeValue();
     }
 
     public static void DeclineInvitation(mNotification invitation, String notificationID) {

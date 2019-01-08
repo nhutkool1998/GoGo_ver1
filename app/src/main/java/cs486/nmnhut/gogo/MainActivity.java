@@ -58,16 +58,24 @@ public class MainActivity extends AppCompatActivity
         }
         @Override
         public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
+            mNotification newNotification = dataSnapshot.getValue(mNotification.class);
+            int position = mNotificationIDs.indexOf(dataSnapshot.getKey());
+            mNotificationIDs.set(position, dataSnapshot.getKey());
+            notificationAdapter.list.set(position, newNotification);
+            notificationAdapter.notifyDataSetChanged();
         }
 
         @Override
         public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-            mNotification newNotification = dataSnapshot.getValue(mNotification.class);
-            int position = mNotificationIDs.indexOf(dataSnapshot.getKey());
-            mNotificationArrayList.remove(position);
-            mNotificationIDs.remove(position);
-            notificationAdapter.remove(position);
+            try {
+                mNotification newNotification = dataSnapshot.getValue(mNotification.class);
+                int position = mNotificationIDs.indexOf(dataSnapshot.getKey());
+                mNotificationArrayList.remove(position);
+                mNotificationIDs.remove(position);
+                notificationAdapter.remove(position);
+            } catch (Exception ex) {
+                DoNothing();
+            }
         }
 
         @Override
@@ -80,6 +88,10 @@ public class MainActivity extends AppCompatActivity
 
         }
     };
+
+    private void DoNothing() {
+    }
+
     static ArrayList<mNotification> mNotificationArrayList = null;
     NotificationAdapter notificationAdapter = null;
     GeolocationHelper geolocationHelper;
@@ -137,6 +149,7 @@ public class MainActivity extends AppCompatActivity
         db = FirebaseDatabase.getInstance();
         String UID = DatabaseHelper.currentUserID();
         DatabaseReference ref = db.getReference("notif/" + UID);
+
         ref.child("newNotif").setValue(notification_createNewTrips);
         ref.child("currentNotif").setValue(notification_viewCurrentTrips);
     }
@@ -212,6 +225,12 @@ public class MainActivity extends AppCompatActivity
             mNotificationArrayList = new ArrayList<>();
         if (notificationAdapter == null)
             notificationAdapter = new NotificationAdapter(mNotificationArrayList);
+        if (mNotificationIDs == null)
+            mNotificationIDs = new ArrayList<>();
+
+        mNotificationArrayList.clear();
+        mNotificationIDs.clear();
+
         notificationList.setLayoutManager(linearLayoutManager);
         notificationList.setAdapter(notificationAdapter);
         // notificationAdapter.notifyDataSetChanged();
@@ -220,10 +239,19 @@ public class MainActivity extends AppCompatActivity
         db = FirebaseDatabase.getInstance();
         UID = this.getIntent().getStringExtra("UID");
         DatabaseReference ref = db.getReference("notif/"+UID);
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+        ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                notificationCount = dataSnapshot.getChildrenCount();
+                // notificationCount = dataSnapshot.getChildrenCount();
+                mNotificationArrayList.clear();
+                mNotificationIDs.clear();
+                if (dataSnapshot.exists()) {
+                    for (DataSnapshot d : dataSnapshot.getChildren()) {
+                        mNotificationArrayList.add(d.getValue(mNotification.class));
+                        mNotificationIDs.add(d.getKey());
+                    }
+                }
+                notificationAdapter.update(mNotificationArrayList);
             }
 
             @Override
@@ -232,7 +260,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        ref.addChildEventListener(childEventListener);
+        //ref.addChildEventListener(childEventListener);
 
 
     }
@@ -279,8 +307,11 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            // Handle the camera action
+            Intent intent = new Intent(this, Camera.class);
+            startActivity(intent);
         } else if (id == R.id.nav_gallery) {
+            Intent intent = new Intent(this, Gallery.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_trip) {
             LaunchCurrentTrips();
@@ -289,8 +320,11 @@ public class MainActivity extends AppCompatActivity
             geolocationHelper.stopLocationUpdates();
             LogOut();
 
-
+        } else if (id == R.id.nav_camera_video) {
+            Intent intent = new Intent(this, CameraVideo.class);
+            startActivity(intent);
         }
+
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -425,14 +459,13 @@ public class MainActivity extends AppCompatActivity
             txtInvitation.setText(list.get(position).getMessage());
 
             Button btnAccept = vh3.getBtnAccept();
+            final String notificationID = mNotificationIDs.get(position);
+            final mNotification notif = list.get(position);
             btnAccept.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mNotification n = list.get(position);
-                    DatabaseHelper.AcceptInvitation(list.get(position), mNotificationIDs.get(position));
+                    DatabaseHelper.AcceptInvitation(notif, notificationID);
                     Toast t = Toast.makeText(MainActivity.this, "Accepted", Toast.LENGTH_SHORT);
-
-
                     t.show();
                 }
             });
@@ -488,6 +521,8 @@ public class MainActivity extends AppCompatActivity
         void add(mNotification notification) {
             list.add(0, notification);
             notifyItemInserted(0);
+            notifyItemRangeChanged(0, getItemCount());
+
         }
 
         void update(ArrayList<mNotification> list) {
@@ -497,7 +532,7 @@ public class MainActivity extends AppCompatActivity
 
         void remove(int index) {
             list.remove(index);
-            notifyItemRemoved(index);
+            notifyDataSetChanged();
         }
     }
 }

@@ -30,7 +30,7 @@
             android:id="@+id/btnNewTripActivity"
             android:layout_width="0dp"
             android:layout_height="30dp"
-            android:layout_margin="18dp"
+            android:layout_margin="4dp"
             android:layout_weight="1"
             android:background="@drawable/round_button"
             android:text="Add"
@@ -45,7 +45,7 @@
             android:id="@+id/btnOptimize"
             android:layout_width="0dp"
             android:layout_height="30dp"
-            android:layout_margin="18dp"
+            android:layout_margin="4dp"
             android:layout_weight="1"
             android:background="@drawable/round_button"
             android:text="Optimize"
@@ -56,7 +56,7 @@
             android:id="@+id/btnEdit"
             android:layout_width="0dp"
             android:layout_height="30dp"
-            android:layout_margin="18dp"
+            android:layout_margin="4dp"
             android:layout_weight="1"
             android:background="@drawable/round_button"
             android:text="Edit"
@@ -64,14 +64,25 @@
             android:textColor="#FFF" />
 
         <Button
+            android:id="@+id/btnChatbox"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_margin="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/round_button"
+            android:text="Chat"
+            android:textAllCaps="false"
+            android:textColor="#FFF" />
+
+        <Button
             android:id="@+id/btnSaveChanges"
             android:layout_width="0dp"
             android:layout_height="30dp"
-            android:layout_margin="18dp"
+            android:layout_margin="4dp"
             android:layout_weight="1"
             android:background="@drawable/round_button"
             android:enabled="true"
-            android:text="Save changes"
+            android:text="Save"
             android:textAllCaps="false"
             android:textColor="#FFF"
             android:visibility="invisible" />

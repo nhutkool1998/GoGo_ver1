@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -30,6 +31,7 @@ public class Login extends AppCompatActivity {
     Button btnSignUp;
     EditText txtUsername;
     EditText txtPassword;
+    TextView txtForgetPassword;
     private FirebaseAuth mAuth;
 
 
@@ -45,6 +47,17 @@ public class Login extends AppCompatActivity {
         Toast t = Toast.makeText(this,"Loading",Toast.LENGTH_LONG);
         t.show();
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+        txtForgetPassword = findViewById(R.id.linkForgetPassword);
+        txtForgetPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseAuth auth = FirebaseAuth.getInstance();
+                String email = txtUsername.getText().toString();
+                auth.sendPasswordResetEmail(email);
+                Toast t = Toast.makeText(Login.this, "Password reset email sent to " + email, Toast.LENGTH_SHORT);
+                t.show();
+            }
+        });
 
         btnSignUp.setEnabled(false);
         btnLogin.setEnabled(false);

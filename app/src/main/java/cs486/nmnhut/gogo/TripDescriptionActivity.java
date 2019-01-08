@@ -182,7 +182,7 @@ public class TripDescriptionActivity extends AppCompatActivity {
         FragmentPlanListAdapter adapter;
         LinearLayoutManager linearLayoutManager;
         int click_position;
-        Button btnSaveChange, btnNewTripActivity, btnOptimize, btnEdit;
+        Button btnSaveChange, btnNewTripActivity, btnOptimize, btnEdit, btnChat;
         final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
         private PendingIntent alarmIntent;
         private AlarmManager alarmManager;
@@ -239,14 +239,17 @@ public class TripDescriptionActivity extends AppCompatActivity {
             btnSaveChange = v.findViewById(R.id.btnSaveChanges);
             btnOptimize = v.findViewById(R.id.btnOptimize);
             btnEdit = v.findViewById(R.id.btnEdit);
+            btnChat = v.findViewById(R.id.btnChatbox);
 
 
             onBtnSaveChangeClick();
             btnSaveChange.setVisibility(View.INVISIBLE);
             onButtonNewActivityClick();
+            onButtonChatClick();
 
             onButtonOptimizeClick();
             onButtonEditClick();
+
 
             listViewActivity = v.findViewById(R.id.listViewActivity);
             activities = new ArrayList<>();
@@ -281,6 +284,17 @@ public class TripDescriptionActivity extends AppCompatActivity {
             ItemTouchHelper ith = new ItemTouchHelper(_ithCallback);
             ith.attachToRecyclerView(listViewActivity);
             return v;
+        }
+
+        private void onButtonChatClick() {
+            btnChat.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(FragmentPlan.this.getContext(), ChatActivity.class);
+                    intent.putExtra("tripID", TripID);
+                    startActivity(intent);
+                }
+            });
         }
 
         private void onButtonEditClick() {
@@ -930,10 +944,11 @@ public class TripDescriptionActivity extends AppCompatActivity {
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
                     int position = spinner.getSelectedItemPosition();
-                    if (listMemberName.get(position).equals("Invite friend..."))
+                    if (listMemberName.get(position).equals("Invite friend...")) {
                         if (!firstrun) {
                             showAddMemberDialog();
                         }
+                    }
                     else
                         showMemberPosition(listMemberName.get(position));
                     firstrun = false;
@@ -982,10 +997,14 @@ public class TripDescriptionActivity extends AppCompatActivity {
         }
 
         private void showMemberPosition(String name) {
-            String key = DatabaseHelper.getUserIDfromName(name);
-            ToaDo t = tripMembers.get(key).position;
-            LatLng latLng = t.getLatLng();
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, map.getMaxZoomLevel()));
+            try {
+                String key = DatabaseHelper.getUserIDfromName(name);
+                ToaDo t = tripMembers.get(key).position;
+                LatLng latLng = t.getLatLng();
+                map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, map.getMaxZoomLevel()));
+            } catch (Exception ex) {
+
+            }
         }
 
         @Override
