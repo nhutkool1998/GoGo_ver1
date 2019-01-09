@@ -39,9 +39,13 @@
         <activity
             android:name=".TripListActivity"
             android:parentActivityName=".MainActivity" />
-        <activity android:name=".AlarmActivity" />
+        <activity
+            android:name=".AlarmActivity"
+            android:parentActivityName=".MainActivity" />
 
-        <activity android:name=".ChatActivity" />
+        <activity
+            android:name=".ChatActivity"
+            android:parentActivityName=".TripListActivity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -59,8 +63,12 @@
 
         <activity android:name=".Camera" />
         <activity android:name=".CameraVideo" />
-        <activity android:name=".Gallery" />
-        <activity android:name=".GalleryRecyclerView"></activity>
+        <activity
+            android:name=".Gallery"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".GalleryRecyclerView"
+            android:parentActivityName=".TripListActivity" />
     </application>
 
 </manifest>

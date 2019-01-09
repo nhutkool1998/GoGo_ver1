@@ -132,6 +132,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -228,8 +229,6 @@ public class MainActivity extends AppCompatActivity
         if (mNotificationIDs == null)
             mNotificationIDs = new ArrayList<>();
 
-        mNotificationArrayList.clear();
-        mNotificationIDs.clear();
 
         notificationList.setLayoutManager(linearLayoutManager);
         notificationList.setAdapter(notificationAdapter);
@@ -243,15 +242,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 // notificationCount = dataSnapshot.getChildrenCount();
-                mNotificationArrayList.clear();
-                mNotificationIDs.clear();
-                if (dataSnapshot.exists()) {
-                    for (DataSnapshot d : dataSnapshot.getChildren()) {
-                        mNotificationArrayList.add(d.getValue(mNotification.class));
-                        mNotificationIDs.add(d.getKey());
-                    }
-                }
-                notificationAdapter.update(mNotificationArrayList);
+                populateNotificationList(dataSnapshot);
             }
 
             @Override
@@ -260,9 +251,30 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        //ref.addChildEventListener(childEventListener);
+        if (mNotificationIDs.isEmpty())
+            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    populateNotificationList(dataSnapshot);
+                }
 
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
+                }
+            });
+    }
+
+    private void populateNotificationList(@NonNull DataSnapshot dataSnapshot) {
+        mNotificationArrayList.clear();
+        mNotificationIDs.clear();
+        if (dataSnapshot.exists()) {
+            for (DataSnapshot d : dataSnapshot.getChildren()) {
+                mNotificationArrayList.add(d.getValue(mNotification.class));
+                mNotificationIDs.add(d.getKey());
+            }
+        }
+        notificationAdapter.update(mNotificationArrayList);
     }
 
     private void writeSampleData() {
