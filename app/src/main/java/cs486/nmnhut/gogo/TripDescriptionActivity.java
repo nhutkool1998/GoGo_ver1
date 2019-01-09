@@ -235,6 +235,9 @@ public class TripDescriptionActivity extends AppCompatActivity {
                 TripID = savedInstanceState.getString("TripID");
                 HostID = savedInstanceState.getString("HostID");
             }
+
+            setHostPrivilege();
+
             btnNewTripActivity = v.findViewById(R.id.btnNewTripActivity);
             btnSaveChange = v.findViewById(R.id.btnSaveChanges);
             btnOptimize = v.findViewById(R.id.btnOptimize);
@@ -284,6 +287,13 @@ public class TripDescriptionActivity extends AppCompatActivity {
             ItemTouchHelper ith = new ItemTouchHelper(_ithCallback);
             ith.attachToRecyclerView(listViewActivity);
             return v;
+        }
+
+        private void setHostPrivilege() {
+            if (!HostID.equals(DatabaseHelper.currentUserID())) {
+                btnEdit.setEnabled(false);
+                btnNewTripActivity.setEnabled(false);
+            }
         }
 
         private void onButtonChatClick() {

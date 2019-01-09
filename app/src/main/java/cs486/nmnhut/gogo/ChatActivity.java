@@ -6,9 +6,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -103,22 +105,26 @@ public class ChatActivity extends AppCompatActivity {
         list = new ArrayList<>();
         adapter = new chatAdapter(this, list);
         listView.setAdapter(adapter);
-
         Intent intent = getIntent();
         tripID = intent.getStringExtra("tripID");
-
         db = FirebaseDatabase.getInstance();
         ref = db.getReference("Chat").child(tripID);
-
 
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ChatMessage chatMessage = new ChatMessage();
-                chatMessage.content = txtChatContent.getText().toString();
-                chatMessage.username = UName;
+                pushMessageToServer();
+            }
+        });
 
-                ref.push().setValue(chatMessage);
+        txtChatContent.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_NULL
+                        && event.getAction() == KeyEvent.ACTION_DOWN) {
+                    pushMessageToServer();//match this behavior to your 'Send' (or Confirm) button
+                }
+                return true;
             }
         });
 
@@ -150,6 +156,15 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void pushMessageToServer() {
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.content = txtChatContent.getText().toString();
+        chatMessage.username = UName;
+
+        ref.push().setValue(chatMessage);
+        txtChatContent.setText("");
     }
 }
 

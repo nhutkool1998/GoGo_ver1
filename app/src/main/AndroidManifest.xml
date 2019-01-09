@@ -45,7 +45,7 @@
 
         <activity
             android:name=".ChatActivity"
-            android:parentActivityName=".TripListActivity" />
+            android:parentActivityName=".TripDescriptionActivity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -61,14 +61,16 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <activity android:name=".Camera" />
+        <activity
+            android:name=".Camera"
+            android:parentActivityName=".MainActivity" />
         <activity android:name=".CameraVideo" />
         <activity
             android:name=".Gallery"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".GalleryRecyclerView"
-            android:parentActivityName=".TripListActivity" />
+            android:parentActivityName=".Gallery" />
     </application>
 
 </manifest>

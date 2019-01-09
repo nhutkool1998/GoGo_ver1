@@ -32,6 +32,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 
 import static cs486.nmnhut.gogo.GeolocationHelper.MY_PERMISSIONS_REQUEST_FINE_LOCATION;
@@ -182,6 +184,7 @@ public class MainActivity extends AppCompatActivity
 
     private void setUIVariables() {
         notificationList = findViewById(R.id.listNotification);
+
     }
 
     @Override
@@ -296,6 +299,8 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        TextView m = findViewById(R.id.txtUserEmail_main);
+        m.setText(DatabaseHelper.getUserEmail());
         return true;
     }
 
