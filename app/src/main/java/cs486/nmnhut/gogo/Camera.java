@@ -276,13 +276,13 @@ public class Camera extends AppCompatActivity {
                 firebaseStorageHelper.uploadToFirebase(imagePath, imageName, new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        Toast t = Toast.makeText(Camera.this, "Fuck you firebase", Toast.LENGTH_SHORT);
+                        Toast t = Toast.makeText(Camera.this, "Success", Toast.LENGTH_SHORT);
                         t.show();
                     }
                 }, new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast t = Toast.makeText(Camera.this, "Damn you firebase", Toast.LENGTH_SHORT);
+                        Toast t = Toast.makeText(Camera.this, "Failed", Toast.LENGTH_SHORT);
                         t.show();
                     }
 

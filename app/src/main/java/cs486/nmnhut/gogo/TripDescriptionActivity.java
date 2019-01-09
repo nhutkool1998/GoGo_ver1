@@ -902,17 +902,21 @@ public class TripDescriptionActivity extends AppCompatActivity {
 
                 @Override
                 public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.exists()) {
-                        TripMember t = dataSnapshot.getValue(TripMember.class);
-                        tripMembers.remove(dataSnapshot.getKey());
-                        if (listMemberName != null) {
-                            listMemberName.remove(t.name);
-                            adapter = new MySpinnerAdapter(getContext(), R.layout.spinner_item, listMemberName);
-                            spinner.setAdapter(adapter);
-                            FirebaseDatabase db = FirebaseDatabase.getInstance();
-                            DatabaseReference ref = db.getReference("position/" + dataSnapshot.getKey());
-                            ref.removeEventListener(positionEvent);
+                    try {
+                        if (dataSnapshot.exists()) {
+                            TripMember t = dataSnapshot.getValue(TripMember.class);
+                            tripMembers.remove(dataSnapshot.getKey());
+                            if (listMemberName != null) {
+                                listMemberName.remove(t.name);
+                                adapter = new MySpinnerAdapter(getActivity(), R.layout.spinner_item, listMemberName);
+                                spinner.setAdapter(adapter);
+                                FirebaseDatabase db = FirebaseDatabase.getInstance();
+                                DatabaseReference ref = db.getReference("position/" + dataSnapshot.getKey());
+                                ref.removeEventListener(positionEvent);
+                            }
                         }
+                    } catch (Exception ex) {
+                        DoNothing();
                     }
                 }
 
@@ -943,12 +947,10 @@ public class TripDescriptionActivity extends AppCompatActivity {
                     if (listMemberName.get(position).equals("Invite friend..."))
                         if (!firstrun) {
                             showAddMemberDialog();
-
                         }
                     else
                         showMemberPosition(listMemberName.get(position));
                     firstrun = false;
-
                 }
 
                 @Override
@@ -964,6 +966,9 @@ public class TripDescriptionActivity extends AppCompatActivity {
                     firstrun = false;
                 }
             });
+        }
+
+        private void DoNothing() {
         }
 
         private void showAddMemberDialog() {

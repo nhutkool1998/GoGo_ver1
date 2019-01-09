@@ -254,7 +254,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        if (mNotificationIDs.isEmpty())
             ref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -269,15 +268,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void populateNotificationList(@NonNull DataSnapshot dataSnapshot) {
-        mNotificationArrayList.clear();
-        mNotificationIDs.clear();
+
         if (dataSnapshot.exists()) {
+            mNotificationArrayList.clear();
+            mNotificationIDs.clear();
             for (DataSnapshot d : dataSnapshot.getChildren()) {
                 mNotificationArrayList.add(d.getValue(mNotification.class));
                 mNotificationIDs.add(d.getKey());
             }
+            notificationAdapter.update(mNotificationArrayList);
         }
-        notificationAdapter.update(mNotificationArrayList);
     }
 
     private void writeSampleData() {
