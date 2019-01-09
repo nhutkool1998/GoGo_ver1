@@ -229,7 +229,6 @@ public class Camera extends AppCompatActivity {
 
         //imageName = "GOGO" + "_" + getCityBaseOnLatLng() + ".png";
 
-        pushImageNameToFirebase(imageName);
 
         //dong nay de luu ten anh dua tren map key
         //imageName = getImageName() + ".png";
@@ -289,20 +288,19 @@ public class Camera extends AppCompatActivity {
 
 
                 });
+                pushImageNameToFirebase(imageName);
 
 
-                finish();
             } else if (resultCode == RESULT_CANCELED) {
                 Toast.makeText(this, "Action canceled", Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(this, "Action Failed", Toast.LENGTH_LONG).show();
             }
         }
+        finish();
 //        Intent intent = new Intent(this, MainActivity.class);
 //        intent.putExtra("UID", currentUserID());
 //        startActivity(intent);
-
-
     }
 
     // dua ten anh len firebase dang text nhu path sau: /MediaFolder/imageFolder

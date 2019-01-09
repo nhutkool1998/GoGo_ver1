@@ -2,6 +2,7 @@ package cs486.nmnhut.gogo;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -35,29 +36,22 @@ class FirebaseStorageHelper {
     }
 
     void downloadFile(String filename, String path, OnSuccessListener<FileDownloadTask.TaskSnapshot> s, OnFailureListener f) {
-        File localFile = null;
-        try {
-            localFile = File.createTempFile(filename, "png", new File(path));
-        } catch (IOException e) {
-            e.printStackTrace();
+        File rootPath = new File(Environment.getExternalStorageDirectory(), "GOGOimages");
+        if (!rootPath.exists()) {
+            rootPath.mkdirs();
         }
+
+        File localFile = new File(rootPath, filename);
+//        try {
+//            localFile = File.createTempFile(path + "/" + filename, "png");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         StorageReference ref = storageRef.child(UID).child(state).child(filename);
 
         ref.getFile(localFile)
-                .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                        // Successfully downloaded data to local file
-                        // ...
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle failed download
-                // ...
-            }
-        });
+                .addOnSuccessListener(s).addOnFailureListener(f);
     }
 
 
