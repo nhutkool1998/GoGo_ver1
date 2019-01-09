@@ -15,12 +15,15 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FileDownloadTask;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -36,7 +39,7 @@ public class GalleryRecyclerView extends AppCompatActivity {
 
     private ArrayList<String> mImageUrls;
     private ArrayList<String> mImageNameList;
-    private String stateName;
+    private String stateName, UID;
 
     DatabaseReference databaseReferenceGalleryRecyclerView;
     GalleryRecyclerViewAdapter adapter;
@@ -76,6 +79,10 @@ public class GalleryRecyclerView extends AppCompatActivity {
 
     }
 
+    void DownloadData() {
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,7 +95,7 @@ public class GalleryRecyclerView extends AppCompatActivity {
         mImageUrls = new ArrayList<>();
         mImageNameList = new ArrayList<>();
 
-        String UID = currentUserID();
+        UID = currentUserID();
 
         databaseReferenceGalleryRecyclerView = FirebaseDatabase.getInstance().getReference("MediaFolder").child("imageFolder").child(UID).child(stateName);
 
@@ -99,9 +106,25 @@ public class GalleryRecyclerView extends AppCompatActivity {
                     Log.d(TAG, "onChildAdded: running");
                     String path = getGOGOimageFolderPath();
                     String filename = dataSnapshot.getValue(String.class);
-                    String imagePath = path + "/" + filename;
+                    final String imagePath = path + "/" + filename;
                     Log.d(TAG, "onChildAdded: imagePath: " + imagePath);
-                    adapter.add(imagePath);
+                    File file = new File(imagePath);
+                    if (file.exists())
+                        adapter.add(imagePath);
+                    else {
+                        FirebaseStorageHelper helper = new FirebaseStorageHelper(GalleryRecyclerView.this, UID, stateName);
+                        helper.downloadFile(filename, path, new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                adapter.add(imagePath);
+                            }
+                        }, new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+
+                            }
+                        });
+                    }
 
                 }
             }

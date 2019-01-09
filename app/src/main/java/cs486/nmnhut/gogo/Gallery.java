@@ -67,7 +67,6 @@ public class Gallery extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 stateList.clear();
-
                 if (dataSnapshot.exists()) {
                     for (DataSnapshot s : dataSnapshot.getChildren()) {
 

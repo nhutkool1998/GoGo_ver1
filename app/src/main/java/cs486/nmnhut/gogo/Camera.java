@@ -27,11 +27,17 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,7 +57,7 @@ public class Camera extends AppCompatActivity {
     String imagePath;
 
     List<String> stateList;
-
+    FirebaseStorageHelper firebaseStorageHelper;
     //firebase section:
     DatabaseReference databaseReference;
     DatabaseReference databaseReferenceImageName;
@@ -69,6 +75,9 @@ public class Camera extends AppCompatActivity {
     private static final int REQUEST_ID_IMAGE_CAPTURE = 100;
     private static final String TAG = "Camera";
     GeolocationHelper geo;
+    private String state;
+    private String uid;
+
 
     // ham lay ten anh tren database ve:
     @Override
@@ -77,11 +86,11 @@ public class Camera extends AppCompatActivity {
 
 
         // for image section:
-        String UID = currentUserID();
+        uid = DatabaseHelper.currentUserID();
 
-        geo = new GeolocationHelper(this, UID);
+        geo = new GeolocationHelper(this, uid);
 
-        databaseReferenceImageName = FirebaseDatabase.getInstance().getReference("MediaFolder").child("imageFolder").child(UID);
+        databaseReferenceImageName = FirebaseDatabase.getInstance().getReference("MediaFolder").child("imageFolder").child(uid);
 
         databaseReferenceImageName.addValueEventListener(new ValueEventListener() {
             @Override
@@ -215,7 +224,8 @@ public class Camera extends AppCompatActivity {
 
         // cho nay custome ten anh luu vao thu muc minh tao ra la GOGOimages nam trong bo nho trong cua dien thoai
 
-        imageName = "GOGO" + "_" + timeStamp + ".png";
+
+        this.imageName = "GOGO" + "_" + timeStamp + ".png";
 
         //imageName = "GOGO" + "_" + getCityBaseOnLatLng() + ".png";
 
@@ -230,7 +240,7 @@ public class Camera extends AppCompatActivity {
         //imagePath = imagesFolder  + imageName;
 
         // lay duong dan
-        imagePath = image.getAbsolutePath();
+        this.imagePath = image.getAbsolutePath();
 
         Uri uriSavedImage = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".my.package.name.provider", image);
 
@@ -259,6 +269,28 @@ public class Camera extends AppCompatActivity {
                 Log.i("MyLog", "Image saved to: " + imagePath);
                 Toast.makeText(this, "Image saved to:\n" +
                         imagePath, Toast.LENGTH_LONG).show();
+                String UID = uid;
+                if (state == null)
+                    state = getStateBaseOnLatLng();
+                String State = state;
+                firebaseStorageHelper = new FirebaseStorageHelper(this, UID, State);
+                firebaseStorageHelper.uploadToFirebase(imagePath, imageName, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        Toast t = Toast.makeText(Camera.this, "Fuck you firebase", Toast.LENGTH_SHORT);
+                        t.show();
+                    }
+                }, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast t = Toast.makeText(Camera.this, "Damn you firebase", Toast.LENGTH_SHORT);
+                        t.show();
+                    }
+
+
+                });
+
+
                 finish();
             } else if (resultCode == RESULT_CANCELED) {
                 Toast.makeText(this, "Action canceled", Toast.LENGTH_LONG).show();
@@ -289,13 +321,17 @@ public class Camera extends AppCompatActivity {
 //            //DatabaseReference ref = FirebaseDatabase.getInstance().getReference("MediaFolder/imageFolder"+UID);
 //            //ref.child(State).push().setValue(img);
             // lay user id voi tinh thanh :
-            String UID = currentUserID();
-            String State = getStateBaseOnLatLng();
+            if (uid == null)
+                uid = currentUserID();
+            if (state == null)
+                state = getStateBaseOnLatLng();
+            String imagePath = getGOGOimageFolderPath() + "/" + imageName;
 
             DatabaseReference dataref = FirebaseDatabase.getInstance()
-                    .getReference("MediaFolder").child("imageFolder").child(UID);
+                    .getReference("MediaFolder").child("imageFolder").child(uid);
 
-            dataref.child(State).push().setValue(imageName);
+            dataref.child(state).push().setValue(imageName);
+
 
         } else {
             Toast.makeText(this, "Image name is empty", Toast.LENGTH_SHORT).show();
@@ -339,6 +375,21 @@ public class Camera extends AppCompatActivity {
         String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
 
         return state; // lay duoc thanh pho
+    }
+
+    String getGOGOimageFolderPath() {
+        File folder = Environment.getExternalStorageDirectory();
+
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+
+
+        String path = folder.getAbsolutePath() + "/" + "GOGOimages";
+
+        Toast.makeText(this, path, Toast.LENGTH_LONG).show();
+
+        return path;
     }
 
 }

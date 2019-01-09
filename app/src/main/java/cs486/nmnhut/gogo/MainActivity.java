@@ -332,11 +332,7 @@ public class MainActivity extends AppCompatActivity
             geolocationHelper.stopLocationUpdates();
             LogOut();
 
-        } else if (id == R.id.nav_camera_video) {
-            Intent intent = new Intent(this, CameraVideo.class);
-            startActivity(intent);
         }
-
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
