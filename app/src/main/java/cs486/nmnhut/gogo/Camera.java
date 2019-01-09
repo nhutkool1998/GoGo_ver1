@@ -350,8 +350,19 @@ public class Camera extends AppCompatActivity {
         try {
             // Here 1 represent max location result to returned, by documents it recommended 1 to 5
             addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+            String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+            String city = addresses.get(0).getLocality();
+            String state = addresses.get(0).getAdminArea();
+            String country = addresses.get(0).getCountryName();
+            String postalCode = addresses.get(0).getPostalCode();
+            String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
+            if (state != null) {
+                return state; // lay duoc thanh pho
+            } else {
+                return city;
+            }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -365,14 +376,7 @@ public class Camera extends AppCompatActivity {
 
         // kien giang 10.0148053,105.0791533    9.5377393,105.2318893
 
-        String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-        String city = addresses.get(0).getLocality();
-        String state = addresses.get(0).getAdminArea();
-        String country = addresses.get(0).getCountryName();
-        String postalCode = addresses.get(0).getPostalCode();
-        String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
-
-        return state; // lay duoc thanh pho
+        return "Hồ Chí Minh";
     }
 
     String getGOGOimageFolderPath() {

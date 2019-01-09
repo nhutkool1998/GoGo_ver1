@@ -940,7 +940,6 @@ public class TripDescriptionActivity extends AppCompatActivity {
             spinner = v.findViewById(R.id.spinnerMember);
 //            adapter = new MySpinnerAdapter(container.getContext(),R.layout.spinner_item,listMemberName);
 //            spinner.setAdapter(adapter);
-            firstrun = true;
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -955,6 +954,7 @@ public class TripDescriptionActivity extends AppCompatActivity {
 
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
+                    firstrun = false;
                     int position = spinner.getSelectedItemPosition();
                     if (listMemberName.get(position).equals("Invite friend...")) {
                         if (!firstrun) {
